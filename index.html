@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Logika</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    /* Shared responsive theme (aligned with labirin.html) */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(-45deg, #1d2b64, #f8cdda, #283c86, #45a247);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      margin: 0;
+      padding: 20px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100dvh;
+      box-sizing: border-box;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100dvh - 40px);
+      padding: 18px;
+      box-sizing: border-box;
+      backdrop-filter: blur(3px);
+      gap: 12px;
+      width: 100%;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: clamp(1.6rem, 5vw, 3.5rem);
+      margin-bottom: 10px;
+      text-shadow: 0 0 15px rgba(255,255,255,0.6), 0 0 25px rgba(0,123,255,0.8);
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #fff, 0 0 20px #007bff; }
+      to { text-shadow: 0 0 20px #fff, 0 0 40px #007bff; }
+    }
+
+    .highscore {
+      font-size: clamp(1rem, 2.6vw, 1.4rem);
+      margin-bottom: 25px;
+      font-weight: bold;
+      background: rgba(0,0,0,0.3);
+      padding: 8px 15px;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 12px 18px;
+      margin: 8px;
+      font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #007bff, #00d4ff);
+      color: white;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.32);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      min-width: 160px;
+      min-height: 48px;
+      touch-action: manipulation;
+    }
+
+    /* Make buttons full-width on small screens for easier tapping */
+    .menu button, .menu .difficulty button {
+      min-width: 220px;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    }
+
+    .menu {
+      display: none;
+      flex-direction: column;
+      margin-top: 12px;
+      animation: fadeIn 0.8s ease forwards;
+      gap:8px;
+      align-items:center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width:480px){
+      .menu button{ width:100%; max-width:420px; }
+      .menu p{ font-size:0.95rem; }
+      .container{ padding:12px }
+      button{ min-width:unset; width:92%; max-width:420px }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎮 Game Logika</h1>
+    <p class="highscore">🏆 High Score: <span id="highScore">0</span></p>
+
+    <!-- Daftar game (ditampilkan langsung) -->
+    <div class="menu" id="gameMenu" style="display:flex;">
+      <p style="font-weight:700;">Pilih Jenis Game yang Ingin Anda Mainkan:</p>
+  <button onclick="chooseGame('hubungkan', this)">🔗 Hubungkan Huruf</button>
+  <button onclick="chooseGame('decode', this)">🔐 Decode Simbol</button>
+  <button onclick="chooseGame('labirin', this)">🧩 Labirin</button>
+    </div>
+
+    <!-- Menu difficulty -->
+    <div class="menu" id="difficultyMenu">
+      <p>Pilih Kesulitan:</p>
+      <button onclick="startGame('easy')">😎 Easy</button>
+      <button onclick="startGame('normal')">🙂 Normal</button>
+      <button onclick="startGame('hard')">🤯 Hard</button>
+      <button onclick="startGame('veryHard')">🔥 Very Hard</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedGame = null;
+
+    // Ambil high score dari localStorage
+    let highScore = localStorage.getItem("highScore") || 0;
+    document.getElementById("highScore").textContent = highScore;
+
+    function chooseGame(game, btn) {
+      selectedGame = game;
+      // sembunyikan daftar game, tampilkan pilihan kesulitan
+      document.getElementById('gameMenu').style.display = 'none';
+      document.getElementById('difficultyMenu').style.display = 'flex';
+    }
+
+    function startGame(level) {
+      if (selectedGame === "hubungkan") {
+        window.location.href = "hubungkan.html?level=" + level;
+      } else if (selectedGame === "decode") {
+        window.location.href = "decode.html?level=" + level;
+      } else if (selectedGame === "isiKotak") {
+        window.location.href = "isikotak.html?level=" + level;
+      } else if (selectedGame === "labirin") {
+        window.location.href = "labirin.html?level=" + level;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Decode Kata</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    html, body { height: 100%; }
+    :root{ --btn-padding:12px 20px; }
+    /* Responsive base matching labirin.html */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(-45deg,#283c86,#45a247,#1d2b64,#f8cdda);
+      background-size: 400% 400%;
+      background-attachment: fixed;
+      animation: bg 12s ease infinite;
+      margin:0;
+      text-align:center;
+      color:#fff;
+      min-height: 100dvh; /* use dynamic viewport height */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      padding: 18px;
+    }
+    @keyframes bg {
+      0% {background-position:0 50%}
+      50% {background-position:100% 50%}
+      100% {background-position:0 50%}
+    }
+
+    h1 {
+      margin:18px 0;
+      font-size: clamp(1.4rem, 4.5vw, 2.5rem);
+      text-shadow:0 0 12px rgba(255,255,255,.6);
+    }
+    .info {
+      margin:15px auto;
+      padding:10px 20px;
+      border-radius:12px;
+      background:rgba(0,0,0,.3);
+      display:inline-grid;
+      grid-auto-flow:column;
+      gap:15px;
+    }
+    .word {
+      font-size: clamp(1.6rem, 6vw, 2.5rem);
+      font-weight:bold;
+      margin:25px 0;
+      text-shadow:0 0 10px rgba(255,255,255,.5);
+    }
+    input {
+      padding:10px;
+      font-size:1.05em;
+      border-radius:8px;
+      border:none;
+      width:280px;
+      max-width:86vw;
+      text-align:center;
+    }
+  button{margin:12px 6px;padding:var(--btn-padding);font-size:1.02em;font-weight:700;color:#fff;border:none;border-radius:30px;cursor:pointer;background:linear-gradient(135deg,#007bff,#00d4ff);box-shadow:0 6px 18px rgba(0,0,0,.32);transition: transform .18s, box-shadow .18s;min-width:160px;min-height:48px}
+    button:hover{ transform:scale(1.07); box-shadow:0 8px 20px rgba(0,0,0,.45)}
+    .btn-home{ background:linear-gradient(135deg,#28a745,#5be584)}
+
+    #gameOver {
+      display:none;
+      margin-top:20px;
+    }
+    @media (max-height:700px){
+      body{ justify-content:flex-start; padding-top:18px; }
+      h1{ margin-top:6px; }
+      .info{ margin-top:6px; }
+      .word{ margin:12px 0; font-size:2.2em }
+      button{ padding:8px 16px; font-size:0.98em }
+    }
+    @media (max-width:480px){
+      .info{ gap:10px; padding:8px 12px; }
+      input{ width:86vw; }
+      .word{ font-size:1.4rem }
+      button{ width:92%; max-width:420px; min-width:unset }
+    }
+  </style>
+</head>
+<body>
+  <h1>🔐 Decode Kata</h1>
+
+  <!-- Pilih tema -->
+  <div id="themeSelect">
+    <h2>Pilih Tema:</h2>
+    <button onclick="startWithTheme('hewan')">🐾 Hewan</button>
+    <button onclick="startWithTheme('buah')">🍎 Buah</button>
+    <button onclick="startWithTheme('negara')">🌍 Negara</button>
+    <button onclick="startWithTheme('random')">🎲 Random</button>
+  </div>
+
+  <!-- Area game -->
+  <div id="gameArea" style="display:none;">
+    <div class="info">
+      <div>Babak: <span id="round">1</span></div>
+      <div>Skor: <span id="score">0</span></div>
+      <div>High Score: <span id="highScore">0</span></div>
+      <div>Kesempatan: <span id="lives">5</span></div>
+    </div>
+
+    <div class="word" id="scrambledWord">....</div>
+
+    <input type="text" id="answer" placeholder="Tebak kata">
+    <br>
+    <button onclick="checkAnswer()">✔️ Cek</button>
+    <button id="btnRestart" onclick="restartGame()">🔁 Ulang Babak</button>
+  <button class="btn-home" onclick="goHome()">⬅️ Kembali ke Home</button>
+
+    <div id="gameOver">
+      <h2>💀 Game Over!</h2>
+      <button onclick="restartFromStart()">🔄 Main dari Awal</button>
+    </div>
+  </div>
+
+<script>
+  // 🔹 Bank kata langsung di JS
+  const wordBank = {
+    hewan: [
+      "kucing","anjing","gajah","ular","ikan","burung","singa","harimau","kuda","kelinci",
+      "kanguru","koala","panda","zebra","jerapah","buaya","beruang","monyet","gorila","penguin",
+      "tupai","landak","kelelawar","katak","semut","lebah","kupu-kupu","kerbau","kambing","domba",
+      "ayam","bebek","angsa","unta","serigala","macan","elang","ikan-hiu","ikan-paus","udang",
+      "kepiting","gurita","cacing","belut","banteng","tapir","anoa","badak","ikan-lumba","ikan-dugong"
+    ],
+    buah: [
+      "apel","jeruk","mangga","pisang","pepaya","semangka","melon","anggur","nanas","alpukat",
+      "stroberi","kiwi","leci","durian","rambutan","salak","jambu","sirsak","belimbing","manggis",
+      "kelengkeng","duku","nangka","kedondong","sawo","delima","markisa","pir","blueberry","cerry",
+      "kurma","tin","zaitun","cranberry","plum","aprikot","persik","kelapa","cempedak","sukun",
+      "labu","timun","tomat","terong-belanda","pepino","bidara","jeruk-bali","kismis","murbei","jagung-manis"
+    ],
+    negara: [
+      "indonesia","jepang","korea","malaysia","singapura","thailand","vietnam","filipina","tiongkok","india",
+      "australia","selandia-baru","inggris","prancis","jerman","italia","spanyol","belanda","rusia","brazil",
+      "argentina","meksiko","kanada","mesir","turki","afrika-selatan","saudi-arabia","uni-emirat-arab","qatar","kuwait",
+      "iran","irak","pakistan","bangladesh","sri-lanka","nepal","bhutan","mongolia","kazakhstan","uzbekistan",
+      "ukraina","polandia","hungaria","swedia","norwegia","finlandia","denmark","islandia","amerika-serikat","chile"
+    ],
+    random: [
+      "meja","kursi","buku","rumah","pintu","jalan","sekolah","laptop","layar","pensil",
+      "pulpen","kertas","tas","sepatu","baju","celana","topi","kacamata","handphone","televisi",
+      "radio","kulkas","komputer","printer","kamera","payung","jam","dompet","kunci","kipas",
+      "lampu","sendok","garpu","piring","gelas","cangkir","kasur","bantal","selimut","guling",
+      "lemari","rak","karpet","jendela","tirai","cermin","sabun","sikat","ember","gayung"
+    ]
+  };
+
+  let currentWord = "", scrambled = "", score = 0;
+  let highScore = localStorage.getItem("decodeHighScore") || 0;
+  let round = 1, lives = 5, words = [];
+
+  document.getElementById("highScore").textContent = highScore;
+
+  function shuffleWord(word){
+    let arr = word.split("");
+    for(let i=arr.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr.join("");
+  }
+
+  function newWord(){
+    if(words.length===0) return;
+    currentWord = words[Math.floor(Math.random()*words.length)].toUpperCase();
+    scrambled = shuffleWord(currentWord);
+    if(scrambled === currentWord) scrambled = shuffleWord(currentWord);
+
+    document.getElementById("scrambledWord").textContent = scrambled;
+    document.getElementById("answer").value = "";
+    document.getElementById("round").textContent = round;
+    document.getElementById("lives").textContent = lives;
+  }
+
+  function checkAnswer(){
+    const ans = document.getElementById("answer").value.toUpperCase();
+    if(ans === currentWord){
+      score += 10;
+      round++;
+      document.getElementById("score").textContent = score;
+      if(score > highScore){
+        highScore = score;
+        localStorage.setItem("decodeHighScore", highScore);
+        document.getElementById("highScore").textContent = highScore;
+      }
+      newWord();
+    }else{
+      lives--;
+      document.getElementById("lives").textContent = lives;
+      if(lives <= 0) gameOver();
+    }
+  }
+
+  function skipWord(){
+    lives--;
+    document.getElementById("lives").textContent = lives;
+    if(lives <= 0) gameOver();
+    else newWord();
+  }
+
+  function gameOver(){
+    document.getElementById("scrambledWord").textContent = "X_X";
+    document.getElementById("gameOver").style.display = "block";
+  }
+
+  function restartFromStart(){
+    score=0; round=1; lives=5;
+    document.getElementById("score").textContent=score;
+    document.getElementById("gameOver").style.display="none";
+    newWord();
+  }
+
+  // 🔹 Tombol Home sekarang beneran ke beranda
+  function goHome(){
+    window.location.href = "index.html";
+  }
+
+  function startWithTheme(theme){
+    words = wordBank[theme];
+    document.getElementById("themeSelect").style.display = "none";
+    document.getElementById("gameArea").style.display = "block";
+    score=0; round=1; lives=5;
+    document.getElementById("score").textContent=0;
+    newWord();
+  }
+</script>
+</body>
+</html>

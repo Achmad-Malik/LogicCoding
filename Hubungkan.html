@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hubungkan Huruf</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    html, body { height: 100%; }
+    /* Responsive base shared with labirin.html */
+    body{
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(-45deg,#1d2b64,#f8cdda,#283c86,#45a247);
+      background-size: 400% 400%;
+      background-attachment: fixed;
+      animation: bg 12s ease infinite;
+      margin:0; text-align:center; color:#fff;
+      min-height: 100dvh; /* use dynamic viewport height on mobile */
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      box-sizing:border-box; padding:18px;
+    }
+    @keyframes bg{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+
+    h1{margin:18px 0 6px;font-size:3em;text-shadow:0 0 15px rgba(255,255,255,.6),0 0 25px rgba(0,123,255,.8);}
+
+    .info{display:inline-grid;grid-auto-flow:column;gap:20px;padding:10px 18px;margin:8px auto 0;border-radius:14px;background:rgba(0,0,0,.3);backdrop-filter: blur(5px);font-weight:600;}
+
+  /* smaller, centered grid to match labirin sizing */
+  .grid{display:grid;grid-template-columns:repeat(4, minmax(48px, 1fr));gap:10px;justify-content:center;margin:14px auto 12px;perspective:900px;width: min(86vw, 520px);} 
+
+    .card{
+      width:100%;aspect-ratio:1/1;max-width:72px;border-radius:12px;border:2px solid #00d4ff;
+      background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;
+      cursor:pointer;user-select:none;transition: transform .32s, box-shadow .28s, border-color .28s, background .28s;
+      transform-style: preserve-3d;box-shadow:0 6px 18px rgba(0,0,0,.22);
+      margin:0 auto;
+    }
+    .card:hover{ transform: translateY(-4px); box-shadow:0 10px 24px rgba(0,0,0,.35)}
+
+    .card .letter{
+      font-size: clamp(1.4rem, 3.5vw, 2em);font-weight:700;color:transparent;transform:rotateY(180deg);
+      backface-visibility:hidden;transition:color .2s ease;
+    }
+
+    .card.revealed{ transform:rotateY(180deg);background:#fff;border-color:#34d399 }
+    .card.revealed .letter{ color:#000 }
+
+    /* Saat match: tetap ada huruf, kotak jadi gelap */
+    .card.matched{
+      cursor:default;background:#2d2d2d;border-color:#28a745;
+      box-shadow:0 0 12px rgba(40,167,69,.8);animation:pulse .5s ease;
+    }
+    .card.matched .letter{ color:#fff; }
+
+    /* Efek pulse */
+    @keyframes pulse {
+      0%{transform:scale(1)}
+      50%{transform:scale(1.1)}
+      100%{transform:scale(1)}
+    }
+
+    /* Efek salah */
+    .card.wrong{animation:shake .4s}
+    @keyframes shake {
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-6px)}
+      40%{transform:translateX(6px)}
+      60%{transform:translateX(-6px)}
+      80%{transform:translateX(6px)}
+    }
+
+  #gameOver{display:none;margin:26px auto 0;font-size:1.2em;background:rgba(0,0,0,.5);padding:18px;border-radius:12px;max-width:90vw}
+
+  button{margin:12px 6px;padding:10px 14px;font-size:1.0em;font-weight:700;color:#fff;border:none;border-radius:20px;cursor:pointer;background:linear-gradient(135deg,#007bff,#00d4ff);box-shadow:0 6px 18px rgba(0,0,0,.28);transition: transform .16s, box-shadow .16s;min-width:140px;min-height:44px}
+  button:hover{ transform:scale(1.04); box-shadow:0 8px 20px rgba(0,0,0,.38)}
+    .btn-home{ background:linear-gradient(135deg,#28a745,#5be584)}
+    
+    @media (max-height:700px){
+      body{ justify-content:flex-start; padding-top:18px; }
+      h1{ margin-top:6px; }
+      .grid{ margin-top:8px; }
+      .info{ margin-top:6px; }
+      button{ padding:10px 14px; font-size:0.96em; }
+    }
+    @media (max-width:480px){
+      .grid{ grid-template-columns: repeat(4, minmax(44px, 1fr)); gap:8px; width:92vw }
+      .card{ max-width:72px; border-radius:10px }
+      button{ width:92%; max-width:360px; min-width:unset; display:block; margin:12px auto }
+      .grid{ gap:8px }
+    }
+
+    /* Center large action buttons on all sizes */
+    #btnRestart{ display:block; margin:14px auto; max-width:520px; width:86%; }
+    .btn-home{ display:block; margin:10px auto; max-width:420px; width:78%; }
+  </style>
+</head>
+<body>
+  <h1>🔗 Hubungkan Huruf</h1>
+  <div class="info">
+    <div>Babak: <span id="round">1</span></div>
+    <div>Skor: <span id="score">0</span></div>
+    <div>High Score: <span id="highScore">0</span></div>
+    <div>Kesempatan: <span id="lives">0</span></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div id="gameOver">
+    <h2>💀 Game Over!</h2>
+    <button onclick="restartFromStart()">🔄 Main dari Awal</button>
+    <button class="btn-home" onclick="goHome()">⬅️ Kembali ke Home</button>
+  </div>
+
+  <button id="btnRestart" onclick="restartGame()">🔁 Ulang Babak</button>
+  <button class="btn-home" onclick="goHome()">⬅️ Kembali ke Home</button>
+
+  <script>
+    let score=0;
+    let highScore=localStorage.getItem("highScore")||0;
+    document.getElementById("highScore").textContent=highScore;
+
+    let selected=[];let matched=[];let round=1;let lives=0;
+    let currentLevel="easy";
+    const params=new URLSearchParams(window.location.search);
+    if(params.get("level")) currentLevel=params.get("level");
+
+    const pointsPerMatch={easy:10,normal:20,hard:30,veryHard:50};
+    const livesPerLevel={easy:6,normal:10,hard:13,veryHard:15};
+
+    function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+    function startGame(){
+      const grid=document.getElementById("grid");
+      grid.innerHTML="";document.getElementById("gameOver").style.display="none";
+      document.getElementById("btnRestart").style.display="inline-block";
+      matched=[];selected=[];
+      lives=livesPerLevel[currentLevel];document.getElementById("lives").textContent=lives;
+      document.getElementById("round").textContent=round;
+
+      let pool=[];
+      if(currentLevel==="easy") pool=["A","A","B","B","C","C","D","D"];
+      else if(currentLevel==="normal") pool=["A","A","B","B","C","C","D","D","E","E","F","F"];
+      else if(currentLevel==="hard") pool=["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H"];
+      else pool=["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H","I","I","J","J"];
+
+      document.querySelector('.grid').style.gridTemplateColumns=pool.length>16?'repeat(5,90px)':'repeat(4,90px)';
+      const shuffled=shuffle([...pool]);
+      shuffled.forEach((letter,idx)=>{
+        const card=document.createElement("div");
+        card.className="card";
+        card.innerHTML=`<span class="letter">${letter}</span>`;
+        card.dataset.letter=letter;card.dataset.index=idx;
+        card.addEventListener("click",()=>selectCard(card));
+        grid.appendChild(card);
+      });
+    }
+
+    function selectCard(card){
+      if(card.classList.contains("matched")||card.classList.contains("revealed"))return;
+      if(lives<=0)return;
+      card.classList.add("revealed");
+      selected.push(card);
+      if(selected.length===2) setTimeout(checkMatch,500);
+    }
+
+    function checkMatch(){
+      const [c1,c2]=selected;
+      if(c1.dataset.letter===c2.dataset.letter && c1.dataset.index!==c2.dataset.index){
+        c1.classList.add("matched");c2.classList.add("matched");
+        matched.push(c1.dataset.index,c2.dataset.index);
+        score+=pointsPerMatch[currentLevel];
+        document.getElementById("score").textContent=score;
+        if(score>highScore){highScore=score;localStorage.setItem("highScore",highScore);document.getElementById("highScore").textContent=highScore;}
+        if(matched.length===document.querySelectorAll(".card").length){round++;startGame();}
+      }else{
+        lives--;document.getElementById("lives").textContent=lives;
+        c1.classList.add("wrong");c2.classList.add("wrong");
+        if(lives<=0){gameOver();}
+        else{
+          setTimeout(()=>{
+            c1.classList.remove("revealed","wrong");
+            c2.classList.remove("revealed","wrong");
+          },400);
+        }
+      }
+      selected=[];
+    }
+
+    function gameOver(){document.getElementById("grid").innerHTML="";document.getElementById("btnRestart").style.display="none";document.getElementById("gameOver").style.display="block";}
+    function restartGame(){score=0;document.getElementById("score").textContent=score;startGame();}
+    function restartFromStart(){score=0;round=1;currentLevel="easy";document.getElementById("score").textContent=score;startGame();}
+    function goHome(){window.location.href="index.html";}
+    startGame();
+  </script>
+</body>
+</html>

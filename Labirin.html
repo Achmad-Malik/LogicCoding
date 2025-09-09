@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Labirin Game</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    /* Apply the same theme as the main menu */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(-45deg, #1d2b64, #f8cdda, #283c86, #45a247);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      margin: 0;
+      padding: 20px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 { margin: 8px 0 6px; text-shadow: 0 0 10px rgba(0,0,0,0.6); }
+
+  #game-wrap { background: rgba(255,255,255,0.06); padding: 16px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.4); margin-top:18px; }
+
+    /* Maze grid */
+    #maze { display: grid; grid-gap:1px; margin-top:12px; touch-action: none; background: #0b1226; padding: 4px; border-radius: 8px; }
+    .cell { border-radius:2px; box-sizing:border-box; }
+    .wall { background: #0b1226; }
+    .path { background: rgba(255,255,255,0.92); }
+    .player { background: linear-gradient(135deg,#00aaff,#0066ff); box-shadow: 0 2px 8px rgba(0,0,0,0.4); border-radius: 50%; }
+    .exit { background: linear-gradient(135deg,#2ee06a,#2db34a); box-shadow: 0 2px 8px rgba(0,0,0,0.35); border-radius: 50%; }
+    .controls { margin:12px auto 0; display:flex; flex-wrap:wrap; justify-content:center; gap:12px; width:100%; box-sizing:border-box; padding:0 8px; }
+    .controls button {
+      margin:6px; padding:12px 18px; font-size:1.05em; font-weight:700; color:#fff; border:none; border-radius:30px;
+      cursor:pointer; background:linear-gradient(135deg,#007bff,#00d4ff); box-shadow:0 4px 12px rgba(0,0,0,.3); transition: transform .2s, box-shadow .2s;
+      display:inline-flex; align-items:center; justify-content:center; min-width:48px; min-height:48px;
+    }
+    .controls button:hover { transform: scale(1.07); box-shadow:0 8px 20px rgba(0,0,0,.45); }
+    .controls button:active { transform: scale(0.98); }
+
+  /* Timer and Game Over styles */
+  #timer { margin-top:8px; font-weight:700; background: rgba(0,0,0,0.25); padding:8px 12px; border-radius:12px; display:inline-block; }
+  #gameOver{display:none;margin:16px auto 0;font-size:1.2em;background:rgba(0,0,0,0.5);padding:18px;border-radius:14px;text-align:center}
+  #gameOver h2{margin:6px 0 12px}
+  .btn-home{
+    background:linear-gradient(135deg,#28a745,#5be584);
+    padding:12px 24px; border:none; border-radius:30px; color:#fff; font-weight:700; font-size:1.05em;
+    box-shadow:0 4px 12px rgba(0,0,0,0.3); cursor:pointer; transition: transform .2s, box-shadow .2s;
+  }
+  .btn-home:hover{ transform: scale(1.07); box-shadow:0 8px 20px rgba(0,0,0,.45); }
+  
+  /* Shared info bar used by other games */
+  .info{display:inline-grid;grid-auto-flow:column;gap:20px;padding:10px 18px;margin:8px auto 0;border-radius:14px;background:rgba(0,0,0,.3);backdrop-filter: blur(5px);font-weight:600; margin-bottom:18px;}
+
+    /* Small screens: shrink cells */
+    @media (max-width:480px){
+      .controls { padding:0 14px; }
+      .controls button { width:48px; height:48px; font-size:18px; padding:0; min-width:48px; min-height:48px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="info">
+    <div>Babak: <span id="level">1</span></div>
+    <div>Skor: <span id="score">0</span></div>
+    <div>High Score: <span id="highScore">0</span></div>
+    <div>Waktu: <span id="timeLeft">--</span>s</div>
+  </div>
+  <div id="game-wrap">
+    <div id="maze"></div>
+
+  <!-- waktu dan skor di bawah map dihilangkan; status ditampilkan di statusBar atas -->
+
+    <div id="gameOver">
+    <h2>💀 Game Over!</h2>
+    <button onclick="restartFromStart()">🔄 Main dari Awal</button>
+  </div>
+
+    <div class="controls" aria-label="controls">
+      <button onclick="move('up')" aria-label="up">↑</button>
+      <button onclick="move('left')" aria-label="left">←</button>
+      <button onclick="move('down')" aria-label="down">↓</button>
+      <button onclick="move('right')" aria-label="right">→</button>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:center;margin-top:12px;">
+    <button class="btn-home" onclick="goHome()">⬅️ Kembali ke Home</button>
+  </div>
+
+  <script>
+  let level = 1;
+  let timeLeft = 0;
+  let timerId = null;
+  let player = {x:0, y:0};
+  let maze = [];
+  let isCompletingLevel = false; // guard to prevent duplicate/overlapping level completion
+  let size = 15; // Default, will be set per difficulty
+  let rng = Math.random;
+  let startX = 1, startY = 0, exitX = 0, exitY = 0;
+  let score = 0;
+  let highScore = parseInt(localStorage.getItem('highScore')||'0');
+  // Keep per-level seeds so a chosen level keeps the same obstacles until completed
+  let levelSeeds = {};
+  try{ levelSeeds = JSON.parse(sessionStorage.getItem('mazeLevelSeeds') || '{}'); }catch(e){ levelSeeds = {}; }
+  const difficultySettings = {
+    easy:   {size: 15, time:30, points: 10},
+    normal: {size: 20, time:60, points: 25},
+    hard:   {size: 30, time:90, points: 50},
+    veryHard:{size: 35, time:120, points: 75}
+  };
+  let currentDifficulty = 'easy';
+  let difficultyLocked = false; // true when user explicitly chose a difficulty (via query param)
+
+    // Read level from query if provided
+    const params = new URLSearchParams(location.search);
+    const qLevel = params.get('level');
+    if(qLevel){
+      // allow passing difficulty or numeric level
+      if(['easy','normal','hard','veryHard'].includes(qLevel)){
+        currentDifficulty = qLevel;
+        level = 1;
+  difficultyLocked = true;
+      } else {
+        level = Math.max(1, parseInt(qLevel)||1);
+      }
+      document.getElementById('level').innerText = level;
+    }
+
+    function setSizeForLevel(){
+      // If difficulty explicitly chosen, use its base size and increase slightly with level
+      const baseSize = difficultySettings[currentDifficulty]?.size || 15;
+      if(difficultyLocked){
+        // Keep the base size constant across all levels when user selected a difficulty
+        size = baseSize;
+      } else {
+        // No explicit difficulty selected: gradually increase size as level grows
+        size = baseSize + Math.floor((level-1)/3) * 2; // increase every 3 levels
+      }
+      if(size % 2 === 0) size += 1;
+      if(size > 51) size = 51;
+    }
+
+    // Compute time for current level: levels 1-5 = 20s, 6-10 = 30s, 11-15 = 40s, etc. (+10s per 5-level group)
+    function computeTimeForLevel(l){
+      // If difficulty chosen, return fixed time per difficulty
+      const cfg = difficultySettings[currentDifficulty];
+      if(cfg) {
+        // If user explicitly locked difficulty, keep the base time constant for all levels
+        if(difficultyLocked) return cfg.time;
+        return cfg.time + Math.floor((l-1)/5) * 10; // slight increase every 5 levels when not locked
+      }
+      const group = Math.floor((l-1)/5); // fallback
+      return 20 + group * 10;
+    }
+
+    // Seeded RNG for reproducible mazes per level
+    function makeRNG(seed){
+      let t = seed >>> 0;
+      return function(){
+        t += 0x6D2B79F5;
+        let r = Math.imul(t ^ t >>> 15, 1 | t);
+        r ^= r + Math.imul(r ^ r >>> 7, 61 | r);
+        return ((r ^ r >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    // Classic maze generation using recursive backtracking with walls
+    function generateMaze(){
+  // entering a fresh maze; cancel any previous completion flag
+  isCompletingLevel = false;
+      setSizeForLevel();
+      const N = size;
+      // Determine or create a seed for this level. If a seed exists and is not used, reuse so the obstacles stay the same.
+      if(!levelSeeds[level] || levelSeeds[level].used){
+        // create a new random seed for this level
+        const s = Math.floor(Math.random() * 1e9) ^ (Date.now() & 0x7fffffff);
+        levelSeeds[level] = { seed: s, used: false };
+        sessionStorage.setItem('mazeLevelSeeds', JSON.stringify(levelSeeds));
+      }
+      rng = makeRNG((levelSeeds[level].seed || 0) + level * 1000);
+      
+      // Initialize maze - all walls (1)
+      maze = Array.from({length:N}, ()=>Array(N).fill(1));
+      
+      // Create maze using recursive backtracking
+      const stack = [];
+      const visited = Array.from({length:N}, ()=>Array(N).fill(false));
+      
+      // Start from position (1,1) - classic maze starts from odd positions
+      let currentX = 1, currentY = 1;
+      maze[currentX][currentY] = 0; // Make it a path
+      visited[currentX][currentY] = true;
+      stack.push([currentX, currentY]);
+      
+      const directions = [[0,2],[2,0],[0,-2],[-2,0]]; // Move by 2 to maintain walls
+      
+      while(stack.length > 0){
+        let [x, y] = stack[stack.length - 1];
+        let neighbors = [];
+        
+        // Find unvisited neighbors
+        for(let [dx, dy] of directions){
+          let nx = x + dx, ny = y + dy;
+          if(nx > 0 && nx < N-1 && ny > 0 && ny < N-1 && !visited[nx][ny]){
+            neighbors.push([nx, ny, x + dx/2, y + dy/2]); // Include wall position
+          }
+        }
+        
+        if(neighbors.length > 0){
+          // Choose random neighbor
+          let [nx, ny, wallX, wallY] = neighbors[Math.floor(rng() * neighbors.length)];
+          
+          // Carve path to neighbor and remove wall between
+          maze[nx][ny] = 0;
+          maze[wallX][wallY] = 0;
+          visited[nx][ny] = true;
+          
+          stack.push([nx, ny]);
+        } else {
+          stack.pop();
+        }
+      }
+      
+      // Add some random openings for variety (based on level)
+      // Reduce openings to make the maze more challenging; harder difficulties get fewer openings
+      let openings;
+      if(difficultyLocked){
+        const base = Math.min(Math.max(1, Math.floor(level/2)), Math.floor(N/3));
+        const mul = currentDifficulty === 'easy' ? 1.0 : (currentDifficulty === 'normal' ? 0.6 : (currentDifficulty === 'hard' ? 0.35 : 0.2));
+        openings = Math.max(0, Math.floor(base * mul));
+      } else {
+        // when difficulty not locked, keep some openings but modestly smaller than before
+        openings = Math.min(Math.max(1, Math.floor(level * 1)), N);
+      }
+
+      for(let i = 0; i < openings; i++){
+        let x = Math.floor(rng() * (N-2)) + 1;
+        let y = Math.floor(rng() * (N-2)) + 1;
+        if(maze[x][y] === 1){
+          // Check if opening this wall connects paths
+          let pathNeighbors = 0;
+          if(x > 0 && maze[x-1][y] === 0) pathNeighbors++;
+          if(x < N-1 && maze[x+1][y] === 0) pathNeighbors++;
+          if(y > 0 && maze[x][y-1] === 0) pathNeighbors++;
+          if(y < N-1 && maze[x][y+1] === 0) pathNeighbors++;
+          
+          // only open when it meaningfully connects areas (avoid creating large open rooms)
+          if(pathNeighbors >= 2){
+            maze[x][y] = 0;
+          }
+        }
+      }
+
+      // Set start and exit positions: pick perimeter start, then choose the absolute farthest reachable path cell as exit
+      function perimeterCells(){
+        const cells = [];
+        for(let i=1;i<N-1;i++){ cells.push([i,1]); cells.push([i,N-2]); }
+        for(let j=1;j<N-1;j++){ cells.push([1,j]); cells.push([N-2,j]); }
+        return cells;
+      }
+
+      function adjPathCount(x,y){
+        let cnt=0; const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+        for(const [dx,dy] of dirs){ const nx=x+dx, ny=y+dy; if(nx>=0 && nx<N && ny>=0 && ny<N && maze[nx][ny]===0) cnt++; }
+        return cnt;
+      }
+
+      const per = perimeterCells();
+      // shuffle perimeter deterministically with rng
+      for(let i=per.length-1;i>0;i--){ const k = Math.floor(rng()* (i+1)); const t=per[i]; per[i]=per[k]; per[k]=t; }
+
+      // Choose start from perimeter path cells preferring low adjacency
+      let foundStart=false;
+      for(const [sx,sy] of per){ if(maze[sx][sy]===0 && adjPathCount(sx,sy) <= 1){ startX=sx; startY=sy; foundStart=true; break; } }
+      if(!foundStart){ for(const [sx,sy] of per){ if(maze[sx][sy]===0){ startX=sx; startY=sy; break; } } }
+
+      // BFS distances from start
+      const dist = Array.from({length:N}, ()=>Array(N).fill(-1));
+      const q = [[startX,startY]]; dist[startX][startY]=0;
+      while(q.length){ const [x,y]=q.shift(); const dirs=[[1,0],[-1,0],[0,1],[0,-1]]; for(const [dx,dy] of dirs){ const nx=x+dx, ny=y+dy; if(nx>=0 && nx<N && ny>=0 && ny<N && maze[nx][ny]===0 && dist[nx][ny]===-1){ dist[nx][ny]=dist[x][y]+1; q.push([nx,ny]); } } }
+
+      // pick absolute farthest reachable cell (prefer low adjacency so it's end/edge)
+      let best=null, bestD=-1;
+      for(let i=0;i<N;i++){
+        for(let j=0;j<N;j++){
+          if(dist[i][j] >= 0){
+            const d = dist[i][j]; const ad = adjPathCount(i,j);
+            if(d > bestD && ad <= 1){ bestD = d; best = [i,j]; }
+            else if(d > bestD && !best){ bestD = d; best = [i,j]; }
+          }
+        }
+      }
+      if(!best){ best = [N-2,N-2]; }
+      exitX = best[0]; exitY = best[1];
+
+      // Ensure start and exit are paths and open an entrance/exit on border near them
+      maze[startX][startY] = 0;
+      maze[exitX][exitY] = 0;
+      // open exit border cell where appropriate
+      if(startY === 1) maze[startX][0] = 0;
+      if(startX === 1) maze[0][startY] = 0;
+      if(startY === N-2) maze[startX][N-1] = 0;
+      if(startX === N-2) maze[N-1][startY] = 0;
+      if(exitY === 1) maze[exitX][0] = 0;
+      if(exitX === 1) maze[0][exitY] = 0;
+      if(exitY === N-2) maze[exitX][N-1] = 0;
+      if(exitX === N-2) maze[N-1][exitY] = 0;
+      
+      // Create guaranteed path if none exists
+      ensurePath();
+      
+  player.x = startX; 
+  player.y = startY;
+  drawMaze();
+  // Update score display
+  document.getElementById('score').textContent = score;
+  // update high score
+  if(score > highScore){ highScore = score; localStorage.setItem('highScore', String(highScore)); document.getElementById('highScore').textContent = highScore; }
+  // Setup timer for the level
+  setupTimer();
+    }
+
+    // Ensure there's a path from start to exit
+    function ensurePath(){
+      const N = size;
+      const visited = Array.from({length:N}, ()=>Array(N).fill(false));
+      const queue = [[startX, startY]];
+      visited[startX][startY] = true;
+      
+      while(queue.length > 0){
+        let [x, y] = queue.shift();
+        if(x === exitX && y === exitY) return; // Path exists
+        
+        const dirs = [[0,1],[1,0],[0,-1],[-1,0]];
+        for(let [dx, dy] of dirs){
+          let nx = x + dx, ny = y + dy;
+          if(nx >= 0 && nx < N && ny >= 0 && ny < N && !visited[nx][ny] && maze[nx][ny] === 0){
+            visited[nx][ny] = true;
+            queue.push([nx, ny]);
+          }
+        }
+      }
+      
+      // No path found, create one
+      createForcedPath();
+    }
+    
+    function createForcedPath(){
+      let x = startX, y = startY;
+      while(x !== exitX || y !== exitY){
+        maze[x][y] = 0;
+        
+        // Move towards exit
+        if(x < exitX) x++;
+        else if(x > exitX) x--;
+        else if(y < exitY) y++;
+        else if(y > exitY) y--;
+      }
+      maze[exitX][exitY] = 0;
+    }
+
+    function drawMaze(){
+      const mazeDiv = document.getElementById('maze');
+      mazeDiv.innerHTML = '';
+      const maxSize = Math.min(600, window.innerWidth - 80, window.innerHeight - 200);
+      const cellSize = Math.floor(maxSize / size);
+      
+      mazeDiv.style.gridTemplateColumns = `repeat(${size}, ${cellSize}px)`;
+      mazeDiv.style.gridTemplateRows = `repeat(${size}, ${cellSize}px)`;
+      
+      for(let i=0; i<size; i++){
+        for(let j=0; j<size; j++){
+          const cell = document.createElement('div');
+          cell.classList.add('cell');
+          cell.style.width = cellSize + 'px';
+          cell.style.height = cellSize + 'px';
+          
+          if(i === player.x && j === player.y) {
+            cell.classList.add('player');
+          } else if(i === exitX && j === exitY) {
+            cell.classList.add('exit');
+          } else {
+            cell.classList.add(maze[i][j] ? 'wall' : 'path');
+          }
+          
+          mazeDiv.appendChild(cell);
+        }
+      }
+    }
+
+    function move(dir){
+    // ignore movement while we're in the middle of completing a level to avoid duplicate triggers
+    if(isCompletingLevel) return;
+    let x = player.x, y = player.y;
+      if(dir === 'up' && x > 0 && maze[x-1][y] === 0) x--;
+      if(dir === 'down' && x < size-1 && maze[x+1][y] === 0) x++;
+      if(dir === 'left' && y > 0 && maze[x][y-1] === 0) y--;
+      if(dir === 'right' && y < size-1 && maze[x][y+1] === 0) y++;
+      
+      player.x = x; 
+      player.y = y;
+      drawMaze();
+      checkLevelUp();
+    }
+
+    function checkLevelUp(){
+      if(player.x === exitX && player.y === exitY){
+        if(isCompletingLevel) return; // already handling completion
+        isCompletingLevel = true;
+        setTimeout(()=>{
+          alert('Level Selesai! Selamat!');
+          // award points based on difficulty
+          const cfg = difficultySettings[currentDifficulty] || {points:10};
+          score += cfg.points;
+          document.getElementById('score').textContent = score;
+          // mark this level's seed as used so next time the same level will get a new random map
+          try{
+            if(levelSeeds[level]){ levelSeeds[level].used = true; sessionStorage.setItem('mazeLevelSeeds', JSON.stringify(levelSeeds)); }
+          }catch(e){}
+          level++; 
+          document.getElementById('level').innerText = level;
+          generateMaze();
+        }, 100);
+      }
+    }
+
+    // Keyboard controls
+    document.addEventListener('keydown',(e)=>{
+      e.preventDefault();
+      if(e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') move('up');
+      if(e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') move('down');
+      if(e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') move('left');
+      if(e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') move('right');
+    });
+
+    // Touch/swipe support
+    let touchStartX, touchStartY;
+    document.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, {passive:true});
+    
+    document.addEventListener('touchend', e => {
+      if(touchStartX == null) return;
+      let dx = e.changedTouches[0].clientX - touchStartX;
+      let dy = e.changedTouches[0].clientY - touchStartY;
+      touchStartX = touchStartY = null;
+      
+      const threshold = 30;
+      if(Math.abs(dx) > threshold || Math.abs(dy) > threshold){
+        if(Math.abs(dx) > Math.abs(dy)){
+          move(dx > 0 ? 'right' : 'left');
+        } else {
+          move(dy > 0 ? 'down' : 'up');
+        }
+      }
+    });
+
+    window.addEventListener('resize', () => drawMaze());
+    
+    // Start the game
+    generateMaze();
+
+    // Timer functions
+    function updateTimerDisplay(){
+      document.getElementById('timeLeft').innerText = String(timeLeft);
+    }
+
+    function setupTimer(){
+      // Clear existing timer
+      if(timerId) { clearInterval(timerId); timerId = null; }
+      timeLeft = computeTimeForLevel(level);
+      updateTimerDisplay();
+      document.getElementById('gameOver').style.display = 'none';
+      // Start countdown
+      timerId = setInterval(()=>{
+        timeLeft--;
+        if(timeLeft <= 0){
+          clearInterval(timerId); timerId = null;
+          onTimeOut();
+        }
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function onTimeOut(){
+      // Show Game Over overlay matching hubungkan.html behavior
+  document.getElementById('maze').innerHTML = '';
+  if(timerId){ clearInterval(timerId); timerId = null; }
+  // hide controls and status bar
+  document.querySelector('.controls').style.display = 'none';
+  document.querySelector('.info').style.display = 'none';
+  document.getElementById('gameOver').style.display = 'block';
+    }
+
+    function restartFromStart(){
+  // reset everything
+  level = 1; score = 0; currentDifficulty = 'easy';
+  document.getElementById('level').innerText = level;
+  document.getElementById('score').textContent = score;
+  document.getElementById('highScore').textContent = highScore;
+  document.querySelector('.controls').style.display = 'flex';
+  // show status bar
+  document.querySelector('.info').style.display = 'flex';
+  document.getElementById('gameOver').style.display = 'none';
+  generateMaze();
+    }
+
+    function goHome(){ window.location.href = 'index.html'; }
+  </script>
+</body>
+</html>
