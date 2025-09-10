@@ -3,11 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <title>Decode Kata</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Tambahkan user-scalable=no dan maximum-scale=1 pada viewport agar tidak bisa digeser/di-zoom -->
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <style>
     html, body { height: 100%; }
+    /* Tambahkan overflow-x:hidden di html dan body agar tidak bisa geser horizontal */
+    html, body {
+      overflow-x: hidden !important;
+      width: 100vw;
+      max-width: 100vw;
+    }
     :root{ --btn-padding:12px 20px; }
-    /* Responsive base matching labirin.html */
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(-45deg,#283c86,#45a247,#1d2b64,#f8cdda);
@@ -17,13 +23,17 @@
       margin:0;
       text-align:center;
       color:#fff;
-      min-height: 100dvh; /* use dynamic viewport height */
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       box-sizing: border-box;
       padding: 18px;
+      /* Pastikan tidak bisa geser horizontal */
+      overflow-x: hidden !important;
+      width: 100vw;
+      max-width: 100vw;
     }
     @keyframes bg {
       0% {background-position:0 50%}
@@ -45,41 +55,262 @@
       grid-auto-flow:column;
       gap:15px;
     }
+    .info{
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px 18px;
+      padding: 10px 10px;
+      margin: 8px auto 0;
+      border-radius:14px;
+      background:rgba(0,0,0,.3);
+      backdrop-filter: blur(5px);
+      font-weight:600;
+      width: 100%;
+      max-width: 520px;
+      box-sizing: border-box;
+    }
+    .info-emoji {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 1.08em;
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 4px 10px;
+      min-width: 90px;
+      justify-content: center;
+      /* For heart wiggle animation */
+      position: relative;
+    }
+    .info-emoji span.emoji {
+      font-size: 1.2em;
+      margin-right: 2px;
+      /* For heart wiggle animation */
+      display: inline-block;
+      transition: transform 0.2s;
+    }
+
+    /* Animasi shake untuk kata jika salah */
+    .shake {
+      animation: shake 0.45s cubic-bezier(.36,.07,.19,.97) both;
+    }
+    @keyframes shake {
+      10%, 90% { transform: translateX(-2px);}
+      20%, 80% { transform: translateX(4px);}
+      30%, 50%, 70% { transform: translateX(-8px);}
+      40%, 60% { transform: translateX(8px);}
+      100% { transform: translateX(0);}
+    }
+
+    /* Animasi wiggle untuk hati */
+    .wiggle-heart {
+      animation: wiggleHeart 0.6s cubic-bezier(.36,.07,.19,.97) both;
+    }
+    @keyframes wiggleHeart {
+      0% { transform: scale(1) rotate(0deg);}
+      10% { transform: scale(1.2) rotate(-10deg);}
+      20% { transform: scale(1.1) rotate(10deg);}
+      30% { transform: scale(1.2) rotate(-8deg);}
+      40% { transform: scale(1.1) rotate(8deg);}
+      50% { transform: scale(1.2) rotate(-6deg);}
+      60% { transform: scale(1.1) rotate(6deg);}
+      70% { transform: scale(1.15) rotate(-4deg);}
+      80% { transform: scale(1.1) rotate(4deg);}
+      90% { transform: scale(1.05) rotate(0deg);}
+      100% { transform: scale(1) rotate(0deg);}
+    }
+
+    @media (max-width: 600px) {
+      html, body {
+        overflow-x: hidden !important;
+        width: 100vw;
+        max-width: 100vw;
+      }
+      .info {
+        max-width: 98vw;
+        gap: 8px 8px;
+        padding: 7px 2vw;
+        font-size: 0.98em;
+      }
+      .info-emoji {
+        font-size: 0.98em;
+        min-width: 70px;
+        padding: 3px 6px;
+      }
+    }
+    @media (max-width: 400px) {
+      html, body {
+        overflow-x: hidden !important;
+        width: 100vw;
+        max-width: 100vw;
+      }
+      .info {
+        flex-direction: column;
+        gap: 4px 0;
+        padding: 5px 2vw;
+        font-size: 0.95em;
+      }
+      .info-emoji {
+        min-width: unset;
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
     .word {
       font-size: clamp(1.6rem, 6vw, 2.5rem);
       font-weight:bold;
       margin:25px 0;
       text-shadow:0 0 10px rgba(255,255,255,.5);
+      /* For shake animation */
+      transition: color 0.2s;
     }
     input {
       padding:10px;
       font-size:1.05em;
       border-radius:8px;
       border:none;
-      width:280px;
-      max-width:86vw;
+      width:480px;
+      max-width:86%;
       text-align:center;
     }
-  button{margin:12px 6px;padding:var(--btn-padding);font-size:1.02em;font-weight:700;color:#fff;border:none;border-radius:30px;cursor:pointer;background:linear-gradient(135deg,#007bff,#00d4ff);box-shadow:0 6px 18px rgba(0,0,0,.32);transition: transform .18s, box-shadow .18s;min-width:160px;min-height:48px}
+    button{margin:12px 6px;padding:var(--btn-padding);font-size:1.02em;font-weight:700;color:#fff;border:none;border-radius:30px;cursor:pointer;background:linear-gradient(135deg,#007bff,#00d4ff);box-shadow:0 6px 18px rgba(0,0,0,.32);transition: transform .18s, box-shadow .18s;min-width:160px;min-height:48px}
     button:hover{ transform:scale(1.07); box-shadow:0 8px 20px rgba(0,0,0,.45)}
     .btn-home{ background:linear-gradient(135deg,#28a745,#5be584)}
 
-    #gameOver {
-      display:none;
-      margin-top:20px;
+    /* Game Over Overlay */
+    #gameOverOverlay {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0; right: 0; bottom: 0;
+      width: 100vw; height: 100dvh;
+      background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(2.5px);
+      align-items: center;
+      justify-content: center;
+      transition: background 0.4s;
+      flex-direction: column;
+    }
+    #gameOverOverlay.show {
+      display: flex;
+      animation: overlayFadeIn 0.5s;
+    }
+    @keyframes overlayFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #skull-anim-overlay {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      opacity: 1;
+      transition: opacity 0.4s;
+      margin-bottom: 18px;
+      z-index: 1001;
+    }
+    #skull-anim-overlay.hide {
+      opacity: 0;
+      pointer-events: none;
+      height: 0;
+      margin: 0;
+      min-height: 0;
+    }
+    .skull-emoji {
+      font-size: 4.5em;
+      animation: skull-pop 1s cubic-bezier(.68,-0.55,.27,1.55);
+      filter: drop-shadow(0 0 18px #fff8) drop-shadow(0 0 8px #0008);
+    }
+    @keyframes skull-pop {
+      0% { transform: scale(0.2) rotate(-30deg); opacity: 0; }
+      60% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+      80% { transform: scale(0.95) rotate(-5deg);}
+      100% { transform: scale(1) rotate(0);}
+    }
+    .skull-text {
+      font-size: 1.5em;
+      margin-top: 8px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px #fff8, 0 0 12px #0008;
+    }
+    .gameover-score {
+      font-size: 1.3em;
+      margin-bottom: 18px;
+      color: #fff;
+      text-shadow: 0 0 8px #00d4ff99;
+    }
+
+    .gameover-actions-overlay {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+      animation: fadein 0.5s;
+      z-index: 1002;
+    }
+    .gameover-actions-overlay.show {
+      display: flex;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .btn-restart-over {
+      display: block;
+      margin: 10px auto;
+      max-width: 520px;
+      width: 86%;
+      background: linear-gradient(135deg,#007bff,#00d4ff);
+    }
+    @media (max-width:600px){
+      html, body {
+        overflow-x: hidden !important;
+        width: 100vw;
+        max-width: 100vw;
+      }
+      #skull-anim-overlay { min-height: 80px; }
+      .skull-emoji { font-size: 3em; }
+      #gameOverOverlay {
+        padding: 0 0vw;
+      }
+      button{ width:95%; max-width:450px; min-width:300px }
+    }
+    @media (max-width:480px){
+      html, body {
+        overflow-x: hidden !important;
+        width: 100vw;
+        max-width: 100vw;
+      }
+      #skull-anim-overlay { min-height: 80px; }
+      .skull-emoji { font-size: 3em; }
+      #gameOverOverlay {
+        padding: 0 0vw;
+      }
     }
     @media (max-height:700px){
       body{ justify-content:flex-start; padding-top:18px; }
       h1{ margin-top:6px; }
       .info{ margin-top:6px; }
+      .scoreboard{ font-size:1em; padding:8px 10px;}
       .word{ margin:12px 0; font-size:2.2em }
       button{ padding:8px 16px; font-size:0.98em }
     }
     @media (max-width:480px){
+      html, body {
+        overflow-x: hidden !important;
+        width: 100vw;
+        max-width: 100vw;
+      }
       .info{ gap:10px; padding:8px 12px; }
+      .scoreboard{ gap:10px; padding:8px 6px; font-size:0.98em;}
       input{ width:86vw; }
       .word{ font-size:1.4rem }
-      button{ width:92%; max-width:420px; min-width:unset }
+      button{ width:95%; max-width:450px; min-width:300px }
     }
   </style>
 </head>
@@ -98,10 +329,10 @@
   <!-- Area game -->
   <div id="gameArea" style="display:none;">
     <div class="info">
-      <div>Babak: <span id="round">1</span></div>
-      <div>Skor: <span id="score">0</span></div>
-      <div>High Score: <span id="highScore">0</span></div>
-      <div>Kesempatan: <span id="lives">5</span></div>
+      <div class="info-emoji"><span class="emoji">🏁</span>Level: <span id="round">1</span></div>
+      <div class="info-emoji"><span class="emoji">⭐</span>Score: <span id="score">0</span></div>
+      <div class="info-emoji" id="livesInfo"><span class="emoji" id="heartEmoji">❤️</span>Chance: <span id="lives">0</span></div>
+      <div class="info-emoji"><span class="emoji">🏆</span>High Score: <span id="highScore">0</span></div>
     </div>
 
     <div class="word" id="scrambledWord">....</div>
@@ -109,12 +340,23 @@
     <input type="text" id="answer" placeholder="Tebak kata">
     <br>
     <button onclick="checkAnswer()">✔️ Cek</button>
-    <button id="btnRestart" onclick="restartGame()">🔁 Ulang Babak</button>
-  <button class="btn-home" onclick="goHome()">⬅️ Kembali ke Home</button>
+    <button id="btnHint" onclick="showHint()">💡 Hint</button>
+    <button class="btn-home" onclick="goHome()">Back To Home</button>
+  </div>
 
-    <div id="gameOver">
-      <h2>💀 Game Over!</h2>
-      <button onclick="restartFromStart()">🔄 Main dari Awal</button>
+  <!-- Overlay Game Over -->
+  <div id="gameOverOverlay">
+    <div id="skull-anim-overlay">
+      <span class="skull-emoji">💀</span>
+      <div class="skull-text">Game Over!</div>
+      <div class="gameover-score">
+        Skor Akhir: <span id="finalScore">0</span><br>
+        High Score: <span id="finalHighScore">0</span>
+      </div>
+    </div>
+    <div class="gameover-actions-overlay" id="gameoverActionsOverlay">
+      <button class="btn-restart-over" onclick="restartFromStart()">Restart</button>
+      <button class="btn-home" onclick="goHome()">Back To Home</button>
     </div>
   </div>
 
@@ -152,8 +394,12 @@
   };
 
   let currentWord = "", scrambled = "", score = 0;
-  let highScore = localStorage.getItem("decodeHighScore") || 0;
+  // Gunakan key highScoreDecodeKata agar high score tidak bentrok dengan game lain
+  let highScore = parseInt(localStorage.getItem("highScoreDecodeKata") || '0', 10);
   let round = 1, lives = 5, words = [];
+
+  // Hilangkan sistem level dan skor per level, skor selalu 20 per kata
+  const pointsPerCorrect = 20;
 
   document.getElementById("highScore").textContent = highScore;
 
@@ -166,6 +412,7 @@
     return arr.join("");
   }
 
+  let hintUsed = false;
   function newWord(){
     if(words.length===0) return;
     currentWord = words[Math.floor(Math.random()*words.length)].toUpperCase();
@@ -178,21 +425,48 @@
     document.getElementById("lives").textContent = lives;
   }
 
+  // Helper: animasi shake pada elemen
+  function animateShake(el) {
+    el.classList.remove('shake');
+    // force reflow
+    void el.offsetWidth;
+    el.classList.add('shake');
+  }
+
+  // Helper: animasi wiggle pada emoji hati
+  function animateHeartWiggle() {
+    const heart = document.getElementById('heartEmoji');
+    if (!heart) return;
+    heart.classList.remove('wiggle-heart');
+    // force reflow
+    void heart.offsetWidth;
+    heart.classList.add('wiggle-heart');
+  }
+
   function checkAnswer(){
     const ans = document.getElementById("answer").value.toUpperCase();
     if(ans === currentWord){
-      score += 10;
+      score += pointsPerCorrect;
       round++;
+      document.getElementById("btnHint").disabled = false;
+      document.getElementById("btnHint").textContent = "💡 Hint";
+      hintUsed = false;
       document.getElementById("score").textContent = score;
       if(score > highScore){
         highScore = score;
-        localStorage.setItem("decodeHighScore", highScore);
+        localStorage.setItem("highScoreDecodeKata", String(highScore));
         document.getElementById("highScore").textContent = highScore;
       }
       newWord();
     }else{
       lives--;
       document.getElementById("lives").textContent = lives;
+
+      // Animasi shake pada kata
+      animateShake(document.getElementById("scrambledWord"));
+      // Animasi wiggle pada hati
+      animateHeartWiggle();
+
       if(lives <= 0) gameOver();
     }
   }
@@ -200,23 +474,71 @@
   function skipWord(){
     lives--;
     document.getElementById("lives").textContent = lives;
+    // Animasi wiggle pada hati juga saat skip
+    animateHeartWiggle();
     if(lives <= 0) gameOver();
     else newWord();
   }
 
+  function showHint(){
+    if(hintUsed) return;
+    let word = currentWord;
+    let arr = word.split("");
+    let idxs = [];
+    while(idxs.length < Math.min(3, word.length)) {
+      let r = Math.floor(Math.random() * word.length);
+      if(!idxs.includes(r)) idxs.push(r);
+    }
+    let hintArr = arr.map((ch, i) => idxs.includes(i) ? ch : "_");
+    let hintStr = hintArr.join(" ");
+    document.getElementById("btnHint").textContent = hintStr;
+    document.getElementById("btnHint").disabled = true;
+    hintUsed = true;
+  }
+
+  function showGameOverOverlay() {
+    const overlay = document.getElementById("gameOverOverlay");
+    const skullAnim = document.getElementById("skull-anim-overlay");
+    const actions = document.getElementById("gameoverActionsOverlay");
+    
+    document.getElementById("finalScore").textContent = score;
+    document.getElementById("finalHighScore").textContent = highScore;
+    
+    overlay.classList.add("show");
+    skullAnim.classList.remove("hide");
+    actions.classList.remove("show");
+    
+    // Tampilkan tengkorak, lalu tombol setelah delay
+    setTimeout(()=>{
+      skullAnim.classList.remove("hide"); // tetap tampil
+      actions.classList.add("show");
+    }, 1200);
+  }
+  
+  function hideGameOverOverlay() {
+    const overlay = document.getElementById("gameOverOverlay");
+    const skullAnim = document.getElementById("skull-anim-overlay");
+    const actions = document.getElementById("gameoverActionsOverlay");
+    
+    overlay.classList.remove("show");
+    skullAnim.classList.remove("hide");
+    actions.classList.remove("show");
+  }
+
   function gameOver(){
     document.getElementById("scrambledWord").textContent = "X_X";
-    document.getElementById("gameOver").style.display = "block";
+    showGameOverOverlay();
   }
 
   function restartFromStart(){
-    score=0; round=1; lives=5;
+    score=0; round=1;
+    lives = 5;
     document.getElementById("score").textContent=score;
-    document.getElementById("gameOver").style.display="none";
+    document.getElementById("lives").textContent=lives;
+    hideGameOverOverlay();
     newWord();
   }
 
-  // 🔹 Tombol Home sekarang beneran ke beranda
   function goHome(){
     window.location.href = "index.html";
   }
@@ -225,10 +547,32 @@
     words = wordBank[theme];
     document.getElementById("themeSelect").style.display = "none";
     document.getElementById("gameArea").style.display = "block";
-    score=0; round=1; lives=5;
+    score=0; round=1;
+    lives = 5;
     document.getElementById("score").textContent=0;
+    document.getElementById("lives").textContent = lives;
+    hideGameOverOverlay();
     newWord();
   }
+
+  // Hapus animasi shake/heart jika selesai
+  document.addEventListener('animationend', function(e) {
+    if(e.animationName === 'shake') {
+      e.target.classList.remove('shake');
+    }
+    if(e.animationName === 'wiggleHeart') {
+      e.target.classList.remove('wiggle-heart');
+    }
+  }, true);
+
+  // Tambahan: Cegah scroll horizontal dengan JS (fallback untuk browser yang bandel)
+  window.addEventListener('resize', function() {
+    document.documentElement.scrollLeft = 0;
+    document.body.scrollLeft = 0;
+  });
+  window.addEventListener('scroll', function() {
+    if (window.scrollX !== 0) window.scrollTo(0, window.scrollY);
+  });
 </script>
 </body>
 </html>

@@ -50,8 +50,109 @@
 
   /* Timer and Game Over styles */
   #timer { margin-top:8px; font-weight:700; background: rgba(0,0,0,0.25); padding:8px 12px; border-radius:12px; display:inline-block; }
-  #gameOver{display:none;margin:16px auto 0;font-size:1.2em;background:rgba(0,0,0,0.5);padding:18px;border-radius:14px;text-align:center}
-  #gameOver h2{margin:6px 0 12px}
+  
+  /* Game Over Overlay */
+  #gameOverOverlay {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0; right: 0; bottom: 0;
+    width: 100vw; height: 100dvh;
+    background: rgba(0,0,0,0.78);
+    backdrop-filter: blur(2.5px);
+    align-items: center;
+    justify-content: center;
+    transition: background 0.4s;
+    flex-direction: column;
+  }
+  #gameOverOverlay.show {
+    display: flex;
+    animation: overlayFadeIn 0.5s;
+  }
+  @keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  #skull-anim-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    opacity: 1;
+    transition: opacity 0.4s;
+    margin-bottom: 18px;
+    z-index: 1001;
+  }
+  #skull-anim-overlay.hide {
+    opacity: 0;
+    pointer-events: none;
+    height: 0;
+    margin: 0;
+    min-height: 0;
+  }
+  .skull-emoji {
+    font-size: 4.5em;
+    animation: skull-pop 1s cubic-bezier(.68,-0.55,.27,1.55);
+    filter: drop-shadow(0 0 18px #fff8) drop-shadow(0 0 8px #0008);
+  }
+  @keyframes skull-pop {
+    0% { transform: scale(0.2) rotate(-30deg); opacity: 0; }
+    60% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+    80% { transform: scale(0.95) rotate(-5deg);}
+    100% { transform: scale(1) rotate(0);}
+  }
+  .skull-text {
+    font-size: 1.5em;
+    margin-top: 8px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px #fff8, 0 0 12px #0008;
+  }
+  .gameover-score {
+    font-size: 1.3em;
+    margin-bottom: 18px;
+    color: #fff;
+    text-shadow: 0 0 8px #00d4ff99;
+  }
+
+  .gameover-actions-overlay {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+    animation: fadein 0.5s;
+    z-index: 1002;
+  }
+  .gameover-actions-overlay.show {
+    display: flex;
+  }
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(20px);}
+    to { opacity: 1; transform: translateY(0);}
+  }
+  .btn-restart-over {
+    display: block;
+    margin: 10px auto;
+    max-width: 520px;
+    width: 86%;
+    background: linear-gradient(135deg,#007bff,#00d4ff);
+    padding: 12px 24px;
+    border: none;
+    border-radius: 30px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.05em;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .btn-restart-over:hover {
+    transform: scale(1.07);
+    box-shadow: 0 8px 20px rgba(0,0,0,.45);
+  }
   .btn-home{
     background:linear-gradient(135deg,#28a745,#5be584);
     padding:12px 24px; border:none; border-radius:30px; color:#fff; font-weight:700; font-size:1.05em;
@@ -63,9 +164,33 @@
   .info{display:inline-grid;grid-auto-flow:column;gap:20px;padding:10px 18px;margin:8px auto 0;border-radius:14px;background:rgba(0,0,0,.3);backdrop-filter: blur(5px);font-weight:600; margin-bottom:18px;}
 
     /* Small screens: shrink cells */
+    @media (max-width:600px){
+      .controls { padding:0 14px; }
+      .controls button { width:48px; height:48px; font-size:18px; padding:0; min-width:48px; min-height:48px; }
+      #skull-anim-overlay { min-height: 80px; }
+      .skull-emoji { font-size: 3em; }
+      #gameOverOverlay {
+        padding: 0 0vw;
+      }
+      .btn-restart-over, .btn-home {
+        width: 95%;
+        max-width: 450px;
+        min-width: 300px;
+      }
+    }
     @media (max-width:480px){
       .controls { padding:0 14px; }
       .controls button { width:48px; height:48px; font-size:18px; padding:0; min-width:48px; min-height:48px; }
+      #skull-anim-overlay { min-height: 80px; }
+      .skull-emoji { font-size: 3em; }
+      #gameOverOverlay {
+        padding: 0 0vw;
+      }
+      .btn-restart-over, .btn-home {
+        width: 95%;
+        max-width: 450px;
+        min-width: 300px;
+      }
     }
   </style>
 </head>
@@ -80,12 +205,21 @@
   <div id="game-wrap">
     <div id="maze"></div>
 
-  <!-- waktu dan skor di bawah map dihilangkan; status ditampilkan di statusBar atas -->
-
-    <div id="gameOver">
-    <h2>💀 Game Over!</h2>
-    <button onclick="restartFromStart()">🔄 Main dari Awal</button>
-  </div>
+    <!-- Game Over Overlay -->
+    <div id="gameOverOverlay">
+      <div id="skull-anim-overlay">
+        <span class="skull-emoji">💀</span>
+        <div class="skull-text">Game Over!</div>
+        <div class="gameover-score">
+          Skor Akhir: <span id="finalScore">0</span><br>
+          High Score: <span id="finalHighScore">0</span>
+        </div>
+      </div>
+      <div class="gameover-actions-overlay" id="gameoverActionsOverlay">
+        <button class="btn-restart-over" onclick="restartFromStart()">Restart</button>
+        <button class="btn-home" onclick="goHome()">Back To Home</button>
+      </div>
+    </div>
 
     <div class="controls" aria-label="controls">
       <button onclick="move('left')" aria-label="left">←</button>
@@ -95,10 +229,12 @@
     </div>
   </div>
   <div style="display:flex;justify-content:center;margin-top:12px;">
-    <button class="btn-home" onclick="goHome()">⬅️ Kembali ke Home</button>
+    <button class="btn-home" onclick="goHome()">Back To Home</button>
   </div>
 
   <script>
+  // Gunakan key khusus untuk high score labirin agar tidak bentrok dengan game lain
+  const LABIRIN_HS_KEY = 'highScoreLabirin';
   let level = 1;
   let timeLeft = 0;
   let timerId = null;
@@ -109,15 +245,20 @@
   let rng = Math.random;
   let startX = 1, startY = 0, exitX = 0, exitY = 0;
   let score = 0;
-  let highScore = parseInt(localStorage.getItem('highScore')||'0');
+  // Ambil high score khusus labirin
+  let highScore = parseInt(localStorage.getItem(LABIRIN_HS_KEY)||'0');
+  // Tampilkan high score di awal
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('highScore').textContent = highScore;
+  });
   // Keep per-level seeds so a chosen level keeps the same obstacles until completed
   let levelSeeds = {};
   try{ levelSeeds = JSON.parse(sessionStorage.getItem('mazeLevelSeeds') || '{}'); }catch(e){ levelSeeds = {}; }
   const difficultySettings = {
-    easy:   {size: 15, time:30, points: 10},
-    normal: {size: 20, time:60, points: 25},
-    hard:   {size: 30, time:90, points: 50},
-    veryHard:{size: 35, time:120, points: 75}
+    easy:   {size: 13, time:30, points: 10},
+    normal: {size: 18, time:60, points: 25},
+    hard:   {size: 26, time:90, points: 50},
+    veryHard:{size: 31, time:120, points: 75}
   };
   let currentDifficulty = 'easy';
   let difficultyLocked = false; // true when user explicitly chose a difficulty (via query param)
@@ -130,7 +271,7 @@
       if(['easy','normal','hard','veryHard'].includes(qLevel)){
         currentDifficulty = qLevel;
         level = 1;
-  difficultyLocked = true;
+        difficultyLocked = true;
       } else {
         level = Math.max(1, parseInt(qLevel)||1);
       }
@@ -177,8 +318,8 @@
 
     // Classic maze generation using recursive backtracking with walls
     function generateMaze(){
-  // entering a fresh maze; cancel any previous completion flag
-  isCompletingLevel = false;
+      // entering a fresh maze; cancel any previous completion flag
+      isCompletingLevel = false;
       setSizeForLevel();
       const N = size;
       // Determine or create a seed for this level. If a seed exists and is not used, reuse so the obstacles stay the same.
@@ -320,15 +461,22 @@
       // Create guaranteed path if none exists
       ensurePath();
       
-  player.x = startX; 
-  player.y = startY;
-  drawMaze();
-  // Update score display
-  document.getElementById('score').textContent = score;
-  // update high score
-  if(score > highScore){ highScore = score; localStorage.setItem('highScore', String(highScore)); document.getElementById('highScore').textContent = highScore; }
-  // Setup timer for the level
-  setupTimer();
+      player.x = startX; 
+      player.y = startY;
+      drawMaze();
+      // Update score display
+      document.getElementById('score').textContent = score;
+      // update high score khusus labirin
+      if(score > highScore){
+        highScore = score;
+        localStorage.setItem(LABIRIN_HS_KEY, String(highScore));
+        document.getElementById('highScore').textContent = highScore;
+      } else {
+        // pastikan high score selalu tampil benar
+        document.getElementById('highScore').textContent = highScore;
+      }
+      // Setup timer for the level
+      setupTimer();
     }
 
     // Ensure there's a path from start to exit
@@ -400,9 +548,9 @@
     }
 
     function move(dir){
-    // ignore movement while we're in the middle of completing a level to avoid duplicate triggers
-    if(isCompletingLevel) return;
-    let x = player.x, y = player.y;
+      // ignore movement while we're in the middle of completing a level to avoid duplicate triggers
+      if(isCompletingLevel) return;
+      let x = player.x, y = player.y;
       if(dir === 'up' && x > 0 && maze[x-1][y] === 0) x--;
       if(dir === 'down' && x < size-1 && maze[x+1][y] === 0) x++;
       if(dir === 'left' && y > 0 && maze[x][y-1] === 0) y--;
@@ -424,6 +572,14 @@
           const cfg = difficultySettings[currentDifficulty] || {points:10};
           score += cfg.points;
           document.getElementById('score').textContent = score;
+          // update high score khusus labirin
+          if(score > highScore){
+            highScore = score;
+            localStorage.setItem(LABIRIN_HS_KEY, String(highScore));
+            document.getElementById('highScore').textContent = highScore;
+          } else {
+            document.getElementById('highScore').textContent = highScore;
+          }
           // mark this level's seed as used so next time the same level will get a new random map
           try{
             if(levelSeeds[level]){ levelSeeds[level].used = true; sessionStorage.setItem('mazeLevelSeeds', JSON.stringify(levelSeeds)); }
@@ -482,7 +638,7 @@
       if(timerId) { clearInterval(timerId); timerId = null; }
       timeLeft = computeTimeForLevel(level);
       updateTimerDisplay();
-      document.getElementById('gameOver').style.display = 'none';
+      hideGameOverOverlay();
       // Start countdown
       timerId = setInterval(()=>{
         timeLeft--;
@@ -496,25 +652,55 @@
 
     function onTimeOut(){
       // Show Game Over overlay matching hubungkan.html behavior
-  document.getElementById('maze').innerHTML = '';
-  if(timerId){ clearInterval(timerId); timerId = null; }
-  // hide controls and status bar
-  document.querySelector('.controls').style.display = 'none';
-  document.querySelector('.info').style.display = 'none';
-  document.getElementById('gameOver').style.display = 'block';
+      document.getElementById('maze').innerHTML = '';
+      if(timerId){ clearInterval(timerId); timerId = null; }
+      // hide controls and status bar
+      document.querySelector('.controls').style.display = 'none';
+      document.querySelector('.info').style.display = 'none';
+      showGameOverOverlay();
+    }
+
+    function showGameOverOverlay() {
+      const overlay = document.getElementById("gameOverOverlay");
+      const skullAnim = document.getElementById("skull-anim-overlay");
+      const actions = document.getElementById("gameoverActionsOverlay");
+      
+      document.getElementById("finalScore").textContent = score;
+      document.getElementById("finalHighScore").textContent = highScore;
+      
+      overlay.classList.add("show");
+      skullAnim.classList.remove("hide");
+      actions.classList.remove("show");
+      
+      // Tampilkan tengkorak, lalu tombol setelah delay
+      setTimeout(()=>{
+        skullAnim.classList.remove("hide"); // tetap tampil
+        actions.classList.add("show");
+      }, 1200);
+    }
+    
+    function hideGameOverOverlay() {
+      const overlay = document.getElementById("gameOverOverlay");
+      const skullAnim = document.getElementById("skull-anim-overlay");
+      const actions = document.getElementById("gameoverActionsOverlay");
+      
+      overlay.classList.remove("show");
+      skullAnim.classList.remove("hide");
+      actions.classList.remove("show");
     }
 
     function restartFromStart(){
-  // reset everything
-  level = 1; score = 0; currentDifficulty = 'easy';
-  document.getElementById('level').innerText = level;
-  document.getElementById('score').textContent = score;
-  document.getElementById('highScore').textContent = highScore;
-  document.querySelector('.controls').style.display = 'flex';
-  // show status bar
-  document.querySelector('.info').style.display = 'flex';
-  document.getElementById('gameOver').style.display = 'none';
-  generateMaze();
+      // reset everything
+      level = 1; score = 0; currentDifficulty = 'easy';
+      document.getElementById('level').innerText = level;
+      document.getElementById('score').textContent = score;
+      // pastikan high score tetap tampil benar
+      document.getElementById('highScore').textContent = highScore;
+      document.querySelector('.controls').style.display = 'flex';
+      // show status bar
+      document.querySelector('.info').style.display = 'flex';
+      hideGameOverOverlay();
+      generateMaze();
     }
 
     function goHome(){ window.location.href = 'index.html'; }
