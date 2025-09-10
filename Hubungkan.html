@@ -44,7 +44,7 @@
     }
 
 
-    .grid{display:grid;grid-template-columns:repeat(4, minmax(48px, 1fr));gap:10px;justify-content:center;margin:14px auto 12px;perspective:900px;width: min(90vw, 400px);} 
+    .grid{display:grid;grid-template-columns:repeat(4, minmax(48px, 1fr));gap:10px;justify-content:center;margin:14px auto 12px;perspective:900px;width: min(85vw, 350px);} 
 
     .card{
       width:100%;aspect-ratio:1/1;max-width:72px;border-radius:12px;border:2px solid #00d4ff;
@@ -56,7 +56,7 @@
     .card:hover{ transform: translateY(-4px); box-shadow:0 10px 24px rgba(0,0,0,.35)}
 
     .card .letter{
-      font-size: clamp(1.6rem, 4vw, 2.2em);font-weight:700;color:transparent;transform:rotateY(180deg);
+      font-size: clamp(1.2rem, 3.5vw, 2em);font-weight:700;color:transparent;transform:rotateY(180deg);
       backface-visibility:hidden;transition:color .2s ease;
     }
 
@@ -191,17 +191,31 @@
     }
     @media (max-width:480px){
       .grid{ 
-        grid-template-columns: repeat(4, minmax(50px, 1fr)); 
-        gap:8px; 
-        width:90vw;
-        max-width: 320px;
+        grid-template-columns: repeat(4, minmax(45px, 1fr)); 
+        gap:6px; 
+        width:85vw;
+        max-width: 280px;
       }
       .card{ 
-        max-width:70px; 
-        border-radius:10px;
-        min-height: 50px;
+        max-width:60px; 
+        border-radius:8px;
+        min-height: 45px;
       }
       button{ width:95%; max-width:450px; min-width:300px; display:block; margin:12px auto }
+    }
+    @media (max-width:360px){
+      .grid{ 
+        grid-template-columns: repeat(4, minmax(40px, 1fr)); 
+        gap:4px; 
+        width:80vw;
+        max-width: 240px;
+      }
+      .card{ 
+        max-width:55px; 
+        border-radius:6px;
+        min-height: 40px;
+      }
+      button{ width:95%; max-width:400px; min-width:280px; display:block; margin:12px auto }
     }
 
     #btnRestart{ display:block; margin:14px auto; max-width:520px; width:86%; }
