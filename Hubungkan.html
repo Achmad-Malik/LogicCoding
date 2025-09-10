@@ -27,7 +27,7 @@
     }
     @keyframes bg{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
 
-    h1{margin:18px 0 6px;font-size:3em;text-shadow:0 0 15px rgba(255,255,255,.6),0 0 25px rgba(0,123,255,.8);}
+    h1{margin:12px 0 4px;font-size:clamp(1.8rem, 5vw, 2.5rem);text-shadow:0 0 15px rgba(255,255,255,.6),0 0 25px rgba(0,123,255,.8);}
 
     /* Responsive Scoreboard */
     .info{
@@ -44,7 +44,7 @@
     }
 
 
-    .grid{display:grid;grid-template-columns:repeat(4, minmax(48px, 1fr));gap:10px;justify-content:center;margin:14px auto 12px;perspective:900px;width: min(85vw, 350px);} 
+    .grid{display:grid;grid-template-columns:repeat(4, minmax(48px, 1fr));gap:6px;justify-content:center;margin:10px auto 8px;perspective:900px;width: min(85vw, 350px);} 
 
     .card{
       width:100%;aspect-ratio:1/1;max-width:72px;border-radius:12px;border:2px solid #00d4ff;
@@ -192,9 +192,10 @@
     @media (max-width:480px){
       .grid{ 
         grid-template-columns: repeat(4, minmax(45px, 1fr)); 
-        gap:6px; 
+        gap:4px; 
         width:85vw;
         max-width: 280px;
+        margin:8px auto 6px;
       }
       .card{ 
         max-width:60px; 
@@ -206,9 +207,10 @@
     @media (max-width:360px){
       .grid{ 
         grid-template-columns: repeat(4, minmax(40px, 1fr)); 
-        gap:4px; 
+        gap:3px; 
         width:80vw;
         max-width: 240px;
+        margin:6px auto 4px;
       }
       .card{ 
         max-width:55px; 
