@@ -69,8 +69,7 @@
     }
 
     .grid{
-      display: flex;
-      flex-direction: row;
+      display: grid;
       justify-content: center;
       align-items: center;
       gap: 8px;
@@ -79,7 +78,6 @@
       max-width: 340px;
       min-height: 70px;
       box-sizing: border-box;
-      flex-wrap: wrap;
     }
 
     .card{
@@ -205,46 +203,90 @@
       to { opacity: 1; transform: translateY(0);}
     }
 
-    /* Perlebar tombol khusus di game over overlay */
-    #gameOverOverlay .btn-main, 
-    #gameOverOverlay .btn-home {
-      width: 50%;
-      max-width: 520px; /* diperlebar dari 400px ke 520px */
+    /* ====== BUTTON STYLE SAMA DENGAN CODINGAN YANG DIMINTA ====== */
+    .btn-main, .btn-home {
+      display: inline-block;
+      padding: 12px 32px;
+      font-size: 1.08em;
+      font-weight: 700;
+      color: #fff;
+      border: none;
+      border-radius: 22px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,.28);
+      transition: transform .16s, box-shadow .16s, background .18s;
+      margin: 12px 8px 0 8px;
+      letter-spacing: .5px;
+      outline: none;
+      background: linear-gradient(135deg,#007bff,#00d4ff);
+      min-width: 140px;
+      max-width: 65%;
+    }
+    .btn-main {
+      background: linear-gradient(135deg,#007bff,#00d4ff);
+    }
+    .btn-main:hover, .btn-main:focus {
+      transform: scale(1.04);
+      background: linear-gradient(135deg,#00bfff,#00eaff);
+      box-shadow: 0 8px 24px rgba(0,0,0,.32);
+    }
+    .btn-home {
+      background: linear-gradient(135deg,#28a745,#5be584);
+    }
+    .btn-home:hover, .btn-home:focus {
+      transform: scale(1.04);
+      background: linear-gradient(135deg,#34d399,#7cf9a7);
+      box-shadow: 0 8px 24px rgba(0,0,0,.32);
+    }
+    /* Untuk tombol di overlay game over, dipisah agar tidak 1 class */
+    #gameOverOverlay .btn-main {
+      width: 60%;
+      max-width: 520px;
       min-width: 220px;
       margin: 12px 0 0 0;
       font-size: 1.13em;
-      padding: 16px 0; /* diperlebar dari 14px ke 16px */
+      padding: 16px 0;
+      display: block;
     }
-
-    .btn-main, .btn-home {
-      margin:12px auto 0 auto;
-      padding:14px 0; /* diperlebar dari 12px ke 14px */
-      font-size:1.08em;
-      font-weight:700;
-      color:#fff;
-      border:none;
-      border-radius:22px;
-      cursor:pointer;
-      box-shadow:0 6px 18px rgba(0,0,0,.28);
-      transition: transform .16s, box-shadow .16s, background .18s;
-      width:98%; /* diperlebar dari 92% ke 98% */
-      max-width:400px; /* diperlebar dari 360px ke 400px */
-      display:block;
-      letter-spacing:.5px;
+    #gameOverOverlay .btn-home {
+      width: 60%;
+      max-width: 520px;
+      min-width: 220px;
+      margin: 12px 0 0 0;
+      font-size: 1.13em;
+      padding: 16px 0;
+      display: block;
     }
-    .btn-main { background:linear-gradient(135deg,#007bff,#00d4ff); }
-    .btn-main:hover { transform:scale(1.04); background:linear-gradient(135deg,#00bfff,#00eaff); }
-    .btn-home { background:linear-gradient(135deg,#28a745,#5be584); }
-    .btn-home:hover { transform:scale(1.04); background:linear-gradient(135deg,#34d399,#7cf9a7); }
+    /* Responsive button */
+    @media (max-width: 600px) {
+      .btn-main, .btn-home {
+        width: 50%;
+        min-width: 0;
+        font-size: 1em;
+        padding: 12px 0;
+      }
+      #gameOverOverlay .btn-main {
+        width: 50%;
+        min-width: 0;
+        font-size: 1em;
+        padding: 14px 0;
+      }
+      #gameOverOverlay .btn-home {
+        width: 50%;
+        min-width: 0;
+        font-size: 1em;
+        padding: 14px 0;
+      }
+    }
   </style>
 </head>
 <body>
   <h1>🔗 Hubungkan Huruf</h1>
   <div class="info">
-    <div>Babak: <span id="round">1</span></div>
-    <div>Skor: <span id="score">0</span></div>
+    <div>Level: <span id="round">1</span></div>
+    <div>Score: <span id="score">0</span></div>
     <div>High Score: <span id="highScore">0</span></div>
-    <div>Kesempatan: <span id="lives">0</span></div>
+    <div>Chance: <span id="lives">0</span></div>
   </div>
 
   <div class="grid" id="grid"></div>
@@ -263,7 +305,7 @@
     </div>
   </div>
 
-  <button id="btnRestart" class="btn-main" onclick="restartGame()">Ulang Babak</button>
+  <button id="btnRestart" class="btn-main" onclick="restartGame()">Restart</button>
   <button class="btn-home" onclick="goHome()">Back To Home</button>
 
   <script>
@@ -279,6 +321,10 @@
     const pointsPerMatch={easy:10,normal:20,hard:30,veryHard:50};
     const livesPerLevel={easy:6,normal:10,hard:13,veryHard:15};
 
+    // Jumlah kotak per level harus membentuk grid yang simetris (baris dan kolom sama)
+    // easy: 4x4 (16), normal: 4x6 (24), hard: 5x6 (30), veryHard: 6x6 (36)
+    // Setiap pool harus genap dan membentuk grid penuh
+
     function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
 
     function startGame(){
@@ -291,13 +337,32 @@
       document.getElementById("gameOverOverlay").style.display="none";
       document.getElementById("gameOverOverlay").classList.remove("show");
 
-      let pool=[];
-      if(currentLevel==="easy") pool=["A","A","B","B","C","C","D","D"];
-      else if(currentLevel==="normal") pool=["A","A","B","B","C","C","D","D","E","E","F","F"];
-      else if(currentLevel==="hard") pool=["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H"];
-      else pool=["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H","I","I","J","J"];
+      let pool=[], columns=4, rows=4;
+      if(currentLevel==="easy") {
+        // 4x4 grid, 8 pasang huruf
+        pool=["A","A","B","B","C","C","D","D"];
+        columns=4; rows=2;
+      }
+      else if(currentLevel==="normal") {
+        // 4x6 grid, 12 pasang huruf
+        pool=["A","A","B","B","C","C","D","D","E","E","F","F"];
+        columns=4; rows=3;
+      }
+      else if(currentLevel==="hard") {
+        // 5x6 grid, 15 pasang huruf
+        pool=["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H"];
+        columns=4; rows=4;
+      }
+      else {
+        // veryHard: 6x6 grid, 18 pasang huruf
+        pool=["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H","I","I","J","J"];
+        columns=5; rows=4;
+      }
 
-      document.querySelector('.grid').style.gridTemplateColumns=pool.length>16?'repeat(5,90px)':'repeat(4,90px)';
+      // Set grid-template-columns agar grid selalu simetris
+      document.querySelector('.grid').style.gridTemplateColumns=`repeat(${columns}, 44px)`;
+      document.querySelector('.grid').style.gridTemplateRows=`repeat(${rows}, 44px)`;
+
       const shuffled=shuffle([...pool]);
       shuffled.forEach((letter,idx)=>{
         const card=document.createElement("div");
