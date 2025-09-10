@@ -44,7 +44,7 @@
     }
 
 
-    .grid{display:grid;grid-template-columns:repeat(4, minmax(48px, 1fr));gap:6px;justify-content:center;margin:10px auto 8px;perspective:900px;width: min(85vw, 350px);} 
+    .grid{display:grid;grid-template-columns:repeat(4, minmax(48px, 1fr));gap:4px;justify-content:center;margin:8px auto 6px;perspective:900px;width: min(75vw, 280px);} 
 
     .card{
       width:100%;aspect-ratio:1/1;max-width:72px;border-radius:12px;border:2px solid #00d4ff;
@@ -56,7 +56,7 @@
     .card:hover{ transform: translateY(-4px); box-shadow:0 10px 24px rgba(0,0,0,.35)}
 
     .card .letter{
-      font-size: clamp(1.2rem, 3.5vw, 2em);font-weight:700;color:transparent;transform:rotateY(180deg);
+      font-size: clamp(0.9rem, 2.8vw, 1.6em);font-weight:700;color:transparent;transform:rotateY(180deg);
       backface-visibility:hidden;transition:color .2s ease;
     }
 
@@ -191,33 +191,33 @@
     }
     @media (max-width:480px){
       .grid{ 
-        grid-template-columns: repeat(4, minmax(45px, 1fr)); 
-        gap:4px; 
-        width:85vw;
-        max-width: 280px;
-        margin:8px auto 6px;
-      }
-      .card{ 
-        max-width:60px; 
-        border-radius:8px;
-        min-height: 45px;
-      }
-      button{ width:95%; max-width:450px; min-width:300px; display:block; margin:12px auto }
-    }
-    @media (max-width:360px){
-      .grid{ 
-        grid-template-columns: repeat(4, minmax(40px, 1fr)); 
+        grid-template-columns: repeat(4, minmax(35px, 1fr)); 
         gap:3px; 
-        width:80vw;
-        max-width: 240px;
+        width:70vw;
+        max-width: 220px;
         margin:6px auto 4px;
       }
       .card{ 
-        max-width:55px; 
+        max-width:50px; 
         border-radius:6px;
-        min-height: 40px;
+        min-height: 35px;
       }
       button{ width:95%; max-width:400px; min-width:280px; display:block; margin:12px auto }
+    }
+    @media (max-width:360px){
+      .grid{ 
+        grid-template-columns: repeat(4, minmax(30px, 1fr)); 
+        gap:2px; 
+        width:65vw;
+        max-width: 180px;
+        margin:4px auto 3px;
+      }
+      .card{ 
+        max-width:42px; 
+        border-radius:4px;
+        min-height: 30px;
+      }
+      button{ width:95%; max-width:350px; min-width:250px; display:block; margin:12px auto }
     }
 
     #btnRestart{ display:block; margin:14px auto; max-width:520px; width:86%; }
