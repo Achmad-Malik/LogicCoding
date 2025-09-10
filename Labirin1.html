@@ -161,7 +161,33 @@
   .btn-home:hover{ transform: scale(1.07); box-shadow:0 8px 20px rgba(0,0,0,.45); }
   
   /* Shared info bar used by other games */
-  .info{display:inline-grid;grid-auto-flow:column;gap:20px;padding:10px 18px;margin:8px auto 0;border-radius:14px;background:rgba(0,0,0,.3);backdrop-filter: blur(5px);font-weight:600; margin-bottom:18px;}
+  .info{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 18px;
+    padding: 10px 10px;
+    margin: 8px auto 0;
+    border-radius:14px;
+    background:rgba(0,0,0,.3);
+    backdrop-filter: blur(5px);
+    font-weight:600;
+    width: 100%;
+    max-width: 520px;
+    box-sizing: border-box;
+    margin-bottom:18px;
+  }
+  .info > div {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 1.08em;
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 4px 10px;
+    min-width: 90px;
+    justify-content: center;
+  }
 
     /* Small screens: shrink cells */
     @media (max-width:600px){
@@ -177,6 +203,17 @@
         max-width: 450px;
         min-width: 300px;
       }
+      .info {
+        max-width: 98vw;
+        gap: 10px 12px;
+        padding: 12px 4vw;
+        font-size: 1.1em;
+      }
+      .info > div {
+        font-size: 1.1em;
+        min-width: 85px;
+        padding: 6px 10px;
+      }
     }
     @media (max-width:480px){
       .controls { padding:0 14px; }
@@ -190,6 +227,18 @@
         width: 95%;
         max-width: 450px;
         min-width: 300px;
+      }
+      .info {
+        flex-direction: column;
+        gap: 8px 0;
+        padding: 10px 4vw;
+        font-size: 1.05em;
+      }
+      .info > div {
+        min-width: unset;
+        width: 100%;
+        justify-content: flex-start;
+        padding: 8px 12px;
       }
     }
   </style>

@@ -56,27 +56,28 @@
     @media (max-width: 600px) {
       .info {
         max-width: 98vw;
-        gap: 8px 8px;
-        padding: 7px 2vw;
-        font-size: 0.98em;
+        gap: 10px 12px;
+        padding: 12px 4vw;
+        font-size: 1.1em;
       }
       .info-emoji {
-        font-size: 0.98em;
-        min-width: 70px;
-        padding: 3px 6px;
+        font-size: 1.1em;
+        min-width: 85px;
+        padding: 6px 10px;
       }
     }
     @media (max-width: 400px) {
       .info {
         flex-direction: column;
-        gap: 4px 0;
-        padding: 5px 2vw;
-        font-size: 0.95em;
+        gap: 8px 0;
+        padding: 10px 4vw;
+        font-size: 1.05em;
       }
       .info-emoji {
         min-width: unset;
         width: 100%;
         justify-content: flex-start;
+        padding: 8px 12px;
       }
     }
 
@@ -92,7 +93,7 @@
     .card:hover{ transform: translateY(-4px); box-shadow:0 10px 24px rgba(0,0,0,.35)}
 
     .card .letter{
-      font-size: clamp(1.4rem, 3.5vw, 2em);font-weight:700;color:transparent;transform:rotateY(180deg);
+      font-size: clamp(1.6rem, 4vw, 2.2em);font-weight:700;color:transparent;transform:rotateY(180deg);
       backface-visibility:hidden;transition:color .2s ease;
     }
 
@@ -226,10 +227,18 @@
       button{ width:95%; max-width:450px; min-width:300px; display:block; margin:12px auto }
     }
     @media (max-width:480px){
-      .grid{ grid-template-columns: repeat(4, minmax(44px, 1fr)); gap:8px; width:92vw }
-      .card{ max-width:72px; border-radius:10px }
+      .grid{ 
+        grid-template-columns: repeat(4, minmax(60px, 1fr)); 
+        gap:12px; 
+        width:95vw;
+        max-width: 400px;
+      }
+      .card{ 
+        max-width:80px; 
+        border-radius:12px;
+        min-height: 60px;
+      }
       button{ width:95%; max-width:450px; min-width:300px; display:block; margin:12px auto }
-      .grid{ gap:8px }
     }
 
     #btnRestart{ display:block; margin:14px auto; max-width:520px; width:86%; }
