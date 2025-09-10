@@ -3,9 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <title>Hubungkan Huruf</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <style>
-    html, body { height: 100%; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      width: 100vw;
+      overflow-x: hidden;
+    }
     body{
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(-45deg,#1d2b64,#f8cdda,#283c86,#45a247);
@@ -15,54 +22,65 @@
       margin:0; text-align:center; color:#fff;
       min-height: 100dvh;
       display:flex; flex-direction:column; align-items:center; justify-content:center;
-      box-sizing:border-box; padding:28px 0 28px 0; /* diperlebar padding atas bawah */
+      box-sizing:border-box; padding:28px 0 28px 0;
+      width: 100vw;
+      overflow-x: hidden;
     }
     @keyframes bg{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
 
-    h1{margin:24px 0 10px;font-size:3.3em;text-shadow:0 0 18px rgba(255,255,255,.7),0 0 32px rgba(0,123,255,.9);}
+    h1{
+      margin:24px 0 10px;
+      font-size:3.3em;
+      text-shadow:0 0 18px rgba(255,255,255,.7),0 0 32px rgba(0,123,255,.9);
+      word-break: break-word;
+      max-width: 98vw;
+    }
 
     .info{
       display:inline-grid;
       grid-auto-flow:column;
-      gap:32px; /* diperlebar dari 20px ke 32px */
-      padding:16px 32px; /* diperlebar dari 10px 18px */
+      gap:32px;
+      padding:16px 32px;
       margin:12px auto 0;
-      border-radius:18px; /* diperlebar */
+      border-radius:18px;
       background:rgba(0,0,0,.32);
       backdrop-filter: blur(7px);
       font-weight:600;
-      font-size:1.18em; /* sedikit diperbesar */
+      font-size:1.18em;
+      max-width: 98vw;
+      box-sizing: border-box;
     }
 
     .grid{
       display:grid;
-      grid-template-columns:repeat(4, minmax(60px, 1fr)); /* diperlebar minmax */
-      gap:18px; /* diperlebar dari 10px */
+      grid-template-columns:repeat(4, 1fr);
+      gap:18px;
       justify-content:center;
-      margin:24px auto 18px; /* diperlebar margin */
-      perspective:1100px; /* diperlebar */
-      width: min(98vw, 660px); /* diperlebar dari 86vw, 520px */
-      max-width:660px;
-    } 
+      margin:24px auto 18px;
+      perspective:1100px;
+      width: 98vw;
+      max-width: 420px;
+      box-sizing: border-box;
+    }
 
     .card{
       width:100%;
       aspect-ratio:1/1;
-      max-width:96px; /* diperlebar dari 72px */
-      border-radius:16px; /* diperlebar */
-      border:2.5px solid #00d4ff; /* diperlebar border */
+      max-width:96px;
+      border-radius:16px;
+      border:2.5px solid #00d4ff;
       background:rgba(255,255,255,.16);
       display:flex;align-items:center;justify-content:center;
       cursor:pointer;user-select:none;
       transition: transform .32s, box-shadow .28s, border-color .28s, background .28s;
       transform-style: preserve-3d;
-      box-shadow:0 8px 24px rgba(0,0,0,.26); /* diperlebar shadow */
+      box-shadow:0 8px 24px rgba(0,0,0,.26);
       margin:0 auto;
     }
     .card:hover{ transform: translateY(-6px); box-shadow:0 14px 32px rgba(0,0,0,.38)}
 
     .card .letter{
-      font-size: clamp(2.1rem, 4vw, 2.7em); /* diperbesar */
+      font-size: clamp(2.1rem, 6vw, 2.7em);
       font-weight:700;
       color:transparent;
       transform:rotateY(180deg);
