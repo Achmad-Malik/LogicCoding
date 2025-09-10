@@ -47,48 +47,16 @@
       text-shadow:0 0 12px rgba(255,255,255,.6);
     }
     .info {
-      margin:15px auto;
-      padding:10px 20px;
-      border-radius:12px;
-      background:rgba(0,0,0,.3);
-      display:inline-grid;
-      grid-auto-flow:column;
-      gap:15px;
-    }
-    .info{
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px 18px;
-      padding: 10px 10px;
+      display: inline-grid;
+      grid-auto-flow: column;
+      gap: 20px;
+      padding: 10px 18px;
       margin: 8px auto 0;
-      border-radius:14px;
-      background:rgba(0,0,0,.3);
+      border-radius: 14px;
+      background: rgba(0,0,0,.3);
       backdrop-filter: blur(5px);
-      font-weight:600;
-      width: 100%;
-      max-width: 520px;
-      box-sizing: border-box;
-    }
-    .info-emoji {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 1.08em;
-      background: rgba(255,255,255,0.08);
-      border-radius: 8px;
-      padding: 4px 10px;
-      min-width: 90px;
-      justify-content: center;
-      /* For heart wiggle animation */
-      position: relative;
-    }
-    .info-emoji span.emoji {
-      font-size: 1.2em;
-      margin-right: 2px;
-      /* For heart wiggle animation */
-      display: inline-block;
-      transition: transform 0.2s;
+      font-weight: 600;
+      margin-bottom: 18px;
     }
 
     /* Animasi shake untuk kata jika salah */
@@ -103,23 +71,6 @@
       100% { transform: translateX(0);}
     }
 
-    /* Animasi wiggle untuk hati */
-    .wiggle-heart {
-      animation: wiggleHeart 0.6s cubic-bezier(.36,.07,.19,.97) both;
-    }
-    @keyframes wiggleHeart {
-      0% { transform: scale(1) rotate(0deg);}
-      10% { transform: scale(1.2) rotate(-10deg);}
-      20% { transform: scale(1.1) rotate(10deg);}
-      30% { transform: scale(1.2) rotate(-8deg);}
-      40% { transform: scale(1.1) rotate(8deg);}
-      50% { transform: scale(1.2) rotate(-6deg);}
-      60% { transform: scale(1.1) rotate(6deg);}
-      70% { transform: scale(1.15) rotate(-4deg);}
-      80% { transform: scale(1.1) rotate(4deg);}
-      90% { transform: scale(1.05) rotate(0deg);}
-      100% { transform: scale(1) rotate(0deg);}
-    }
 
     @media (max-width: 600px) {
       html, body {
@@ -127,35 +78,12 @@
         width: 100vw;
         max-width: 100vw;
       }
-      .info {
-        max-width: 98vw;
-        gap: 10px 12px;
-        padding: 12px 4vw;
-        font-size: 1.1em;
-      }
-      .info-emoji {
-        font-size: 1.1em;
-        min-width: 85px;
-        padding: 6px 10px;
-      }
     }
     @media (max-width: 400px) {
       html, body {
         overflow-x: hidden !important;
         width: 100vw;
         max-width: 100vw;
-      }
-      .info {
-        flex-direction: column;
-        gap: 8px 0;
-        padding: 10px 4vw;
-        font-size: 1.05em;
-      }
-      .info-emoji {
-        min-width: unset;
-        width: 100%;
-        justify-content: flex-start;
-        padding: 8px 12px;
       }
     }
     .word {
@@ -330,10 +258,10 @@
   <!-- Area game -->
   <div id="gameArea" style="display:none;">
     <div class="info">
-      <div class="info-emoji"><span class="emoji">🏁</span>Level: <span id="round">1</span></div>
-      <div class="info-emoji"><span class="emoji">⭐</span>Score: <span id="score">0</span></div>
-      <div class="info-emoji" id="livesInfo"><span class="emoji" id="heartEmoji">❤️</span>Chance: <span id="lives">0</span></div>
-      <div class="info-emoji"><span class="emoji">🏆</span>High Score: <span id="highScore">0</span></div>
+      <div>Level: <span id="round">1</span></div>
+      <div>Score: <span id="score">0</span></div>
+      <div>High Score: <span id="highScore">0</span></div>
+      <div id="livesInfo">Chance: <span id="lives">0</span></div>
     </div>
 
     <div class="word" id="scrambledWord">....</div>
@@ -434,15 +362,6 @@
     el.classList.add('shake');
   }
 
-  // Helper: animasi wiggle pada emoji hati
-  function animateHeartWiggle() {
-    const heart = document.getElementById('heartEmoji');
-    if (!heart) return;
-    heart.classList.remove('wiggle-heart');
-    // force reflow
-    void heart.offsetWidth;
-    heart.classList.add('wiggle-heart');
-  }
 
   function checkAnswer(){
     const ans = document.getElementById("answer").value.toUpperCase();
@@ -465,8 +384,6 @@
 
       // Animasi shake pada kata
       animateShake(document.getElementById("scrambledWord"));
-      // Animasi wiggle pada hati
-      animateHeartWiggle();
 
       if(lives <= 0) gameOver();
     }
@@ -475,8 +392,6 @@
   function skipWord(){
     lives--;
     document.getElementById("lives").textContent = lives;
-    // Animasi wiggle pada hati juga saat skip
-    animateHeartWiggle();
     if(lives <= 0) gameOver();
     else newWord();
   }
@@ -556,13 +471,10 @@
     newWord();
   }
 
-  // Hapus animasi shake/heart jika selesai
+  // Hapus animasi shake jika selesai
   document.addEventListener('animationend', function(e) {
     if(e.animationName === 'shake') {
       e.target.classList.remove('shake');
-    }
-    if(e.animationName === 'wiggleHeart') {
-      e.target.classList.remove('wiggle-heart');
     }
   }, true);
 
