@@ -192,8 +192,8 @@
     .btn-restart-over {
       display: block;
       margin: 10px auto;
-      max-width: 520px;
-      width: 86%;
+      max-width: 600px;
+      width: 60%;
       background: linear-gradient(135deg,#007bff,#00d4ff);
     }
     @media (max-width:600px){
@@ -288,6 +288,22 @@
       <button class="btn-home" onclick="goHome()">Back To Home</button>
     </div>
   </div>
+  <audio id="gameOverSound" preload="auto">
+    <source src="sounds/gameover.mp3" type="audio/mpeg">
+    <source src="sounds/gameover.wav" type="audio/wav">
+  </audio>
+  <audio id="successSound" preload="auto">
+    <source src="sounds/success.mp3" type="audio/mpeg">
+    <source src="sounds/success.wav" type="audio/wav">
+  </audio>
+  <audio id="benarSound" preload="auto">
+    <source src="sounds/true.mp3" type="audio/mpeg">
+    <source src="sounds/true.wav" type="audio/wav">
+  </audio>
+  <audio id="salahSound" preload="auto">
+    <source src="sounds/wrong.mp3" type="audio/mpeg">
+    <source src="sounds/wrong.wav" type="audio/wav">
+  </audio>
 
 <script>
   // 🔹 Bank kata langsung di JS
@@ -332,6 +348,95 @@
 
   document.getElementById("highScore").textContent = highScore;
 
+  // Sound elements
+  const benarSound = document.getElementById("benarSound");
+  const salahSound = document.getElementById("salahSound");
+  const gameOverSound = document.getElementById("gameOverSound");
+
+  function playSound(sound) {
+    if (!sound) return;
+    try {
+      sound.currentTime = 0;
+      sound.play().catch(e => {
+        console.log('Sound play failed:', e);
+        // Fallback: generate sound jika file tidak tersedia
+        generateFallbackSound(sound);
+      });
+    } catch (e) {
+      console.log('Sound error:', e);
+      generateFallbackSound(sound);
+    }
+  }
+
+  // Fallback sound generation
+  function generateFallbackSound(audioElement) {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      
+      if (audioElement.id === 'benarSound') {
+        // Sound untuk jawaban benar
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.type = 'sine';
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+      } else if (audioElement.id === 'salahSound') {
+        // Sound untuk jawaban salah
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+        oscillator.type = 'sawtooth';
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
+      } else if (audioElement.id === 'successSound') {
+        // Sound untuk level selesai
+        const playTone = (freq, time) => {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
+          oscillator.type = 'sine';
+          gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + time);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + 0.2);
+          oscillator.start(audioContext.currentTime + time);
+          oscillator.stop(audioContext.currentTime + time + 0.2);
+        };
+        playTone(523, 0); // C
+        playTone(659, 0.1); // E
+        playTone(784, 0.2); // G
+      } else if (audioElement.id === 'gameOverSound') {
+        // Sound untuk game over
+        const playTone = (freq, time) => {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
+          oscillator.type = 'sawtooth';
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + time);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + 0.3);
+          oscillator.start(audioContext.currentTime + time);
+          oscillator.stop(audioContext.currentTime + time + 0.3);
+        };
+        playTone(400, 0);
+        playTone(300, 0.15);
+        playTone(200, 0.3);
+      }
+    } catch (e) {
+      console.log('Fallback sound generation failed:', e);
+    }
+  }
+
   function shuffleWord(word){
     let arr = word.split("");
     for(let i=arr.length-1;i>0;i--){
@@ -366,6 +471,7 @@
   function checkAnswer(){
     const ans = document.getElementById("answer").value.toUpperCase();
     if(ans === currentWord){
+      playSound(benarSound);
       score += pointsPerCorrect;
       round++;
       document.getElementById("btnHint").disabled = false;
@@ -377,8 +483,11 @@
         localStorage.setItem("highScoreDecodeKata", String(highScore));
         document.getElementById("highScore").textContent = highScore;
       }
+      // 🔊 Mainkan sound success
+      playSound(successSound);
       newWord();
     }else{
+      playSound(salahSound);
       lives--;
       document.getElementById("lives").textContent = lives;
 
@@ -443,6 +552,7 @@
 
   function gameOver(){
     document.getElementById("scrambledWord").textContent = "X_X";
+    playSound(gameOverSound);
     showGameOverOverlay();
   }
 

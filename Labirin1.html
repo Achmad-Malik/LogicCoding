@@ -232,8 +232,102 @@
     <button class="btn-home" onclick="goHome()">Back To Home</button>
   </div>
 
+  <!-- Audio Elements -->
+  <audio id="moveSound" preload="auto">
+    <source src="sounds/move.mp3" type="audio/mpeg">
+    <source src="sounds/move.wav" type="audio/wav">
+  </audio>
+  <audio id="successSound" preload="auto">
+    <source src="sounds/success.mp3" type="audio/mpeg">
+    <source src="sounds/success.wav" type="audio/wav">
+  </audio>
+  <audio id="gameOverSound" preload="auto">
+    <source src="sounds/gameover.mp3" type="audio/mpeg">
+    <source src="sounds/gameover.wav" type="audio/wav">
+  </audio>
+
   <script>
-  // Gunakan key khusus untuk high score labirin agar tidak bentrok dengan game lain
+  // --- Audio Elements ---
+  const moveSound = document.getElementById("moveSound");
+  const successSound = document.getElementById("successSound");
+  const gameOverSound = document.getElementById("gameOverSound");
+
+  // helper biar bisa dipanggil berulang
+  function playSound(audio){
+    if(audio){
+      try {
+        audio.currentTime = 0;
+        audio.play().catch(e => {
+          console.log('Sound play failed:', e);
+          // Fallback: generate sound jika file tidak tersedia
+          generateFallbackSound(audio);
+        }); 
+      } catch (e) {
+        console.log('Sound error:', e);
+        generateFallbackSound(audio);
+      }
+    } else {
+      console.log('Audio element not found');
+    }
+  }
+
+  // Fallback sound generation
+  function generateFallbackSound(audioElement) {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      
+      if (audioElement.id === 'moveSound') {
+        // Sound pendek untuk gerakan
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.type = 'square';
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+      } else if (audioElement.id === 'successSound') {
+        // Sound naik untuk kemenangan
+        const playTone = (freq, time) => {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
+          oscillator.type = 'sine';
+          gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + time);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + 0.2);
+          oscillator.start(audioContext.currentTime + time);
+          oscillator.stop(audioContext.currentTime + time + 0.2);
+        };
+        playTone(523, 0); // C
+        playTone(659, 0.1); // E
+        playTone(784, 0.2); // G
+      } else if (audioElement.id === 'gameOverSound') {
+        // Sound turun untuk game over
+        const playTone = (freq, time) => {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
+          oscillator.type = 'sawtooth';
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + time);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + 0.3);
+          oscillator.start(audioContext.currentTime + time);
+          oscillator.stop(audioContext.currentTime + time + 0.3);
+        };
+        playTone(400, 0);
+        playTone(300, 0.15);
+        playTone(200, 0.3);
+      }
+    } catch (e) {
+      console.log('Fallback sound generation failed:', e);
+    }
+  }
+
   const LABIRIN_HS_KEY = 'highScoreLabirin';
   let level = 1;
   let timeLeft = 0;
@@ -555,6 +649,7 @@
       if(dir === 'down' && x < size-1 && maze[x+1][y] === 0) x++;
       if(dir === 'left' && y > 0 && maze[x][y-1] === 0) y--;
       if(dir === 'right' && y < size-1 && maze[x][y+1] === 0) y++;
+       if(player.x !== x || player.y !== y){ playSound(moveSound); }
       
       player.x = x; 
       player.y = y;
@@ -564,15 +659,13 @@
 
     function checkLevelUp(){
       if(player.x === exitX && player.y === exitY){
-        if(isCompletingLevel) return; // already handling completion
+        if(isCompletingLevel) return;
         isCompletingLevel = true;
         setTimeout(()=>{
           alert('Level Selesai! Selamat!');
-          // award points based on difficulty
           const cfg = difficultySettings[currentDifficulty] || {points:10};
           score += cfg.points;
           document.getElementById('score').textContent = score;
-          // update high score khusus labirin
           if(score > highScore){
             highScore = score;
             localStorage.setItem(LABIRIN_HS_KEY, String(highScore));
@@ -580,6 +673,7 @@
           } else {
             document.getElementById('highScore').textContent = highScore;
           }
+           playSound(successSound);
           // mark this level's seed as used so next time the same level will get a new random map
           try{
             if(levelSeeds[level]){ levelSeeds[level].used = true; sessionStorage.setItem('mazeLevelSeeds', JSON.stringify(levelSeeds)); }
@@ -657,6 +751,8 @@
       // hide controls and status bar
       document.querySelector('.controls').style.display = 'none';
       document.querySelector('.info').style.display = 'none';
+      // 🔊 Mainkan sound game over terlebih dahulu
+      playSound(gameOverSound);
       showGameOverOverlay();
     }
 

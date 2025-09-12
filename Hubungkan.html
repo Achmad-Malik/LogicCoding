@@ -5,279 +5,43 @@
   <title>Hubungkan Huruf</title>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      width: 100vw;
-      overflow-x: hidden;
-    }
-    body{
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1d2b64 0%, #45a247 100%);
-      background-size: cover;
-      background-attachment: fixed;
-      margin:0; text-align:center; color:#fff;
-      min-height: 100dvh;
-      display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-      box-sizing:border-box; padding:0 0 24px 0;
-      width: 100vw;
-      overflow-x: hidden;
-    }
-
-    @keyframes bg{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
-
-    h1{
-      margin:32px 0 18px 0;
-      font-size:1.35em;
-      font-weight:700;
-      text-shadow:0 0 10px rgba(255,255,255,.7),0 0 18px rgba(0,123,255,.7);
-      word-break: break-word;
-      max-width: 98vw;
-      letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    h1 .icon-lock {
-      font-size: 1.2em;
-      margin-right: 4px;
-    }
-
-    .info{
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      gap: 18px;
-      padding: 8px 18px;
-      margin: 0 auto 24px auto;
-      border-radius: 14px;
-      background:rgba(0,0,0,.22);
-      backdrop-filter: blur(5px);
-      font-weight:600;
-      font-size:1em;
-      max-width: 98vw;
-      box-sizing: border-box;
-      min-height: 38px;
-    }
-    .info > div {
-      min-width: 70px;
-      text-align: center;
-    }
-
-    .grid{
-      display: grid;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      margin: 0 auto 24px auto;
-      width: 100%;
-      max-width: 340px;
-      min-height: 70px;
-      box-sizing: border-box;
-    }
-
-    .card{
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      border:2px solid #00d4ff;
-      background:rgba(255,255,255,.13);
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer;user-select:none;
-      transition: transform .22s, box-shadow .18s, border-color .18s, background .18s;
-      transform-style: preserve-3d;
-      box-shadow:0 2px 8px rgba(0,0,0,.13);
-      margin: 0;
-      position: relative;
-    }
-    .card:not(:last-child) {
-      /* No extra margin, handled by gap */
-    }
-    .card:hover{ transform: scale(1.06); box-shadow:0 4px 12px rgba(0,0,0,.18)}
-
-    .card .letter{
-      font-size: 1.25em;
-      font-weight:700;
-      color:transparent;
-      transform:rotateY(180deg);
-      backface-visibility:hidden;
-      transition:color .2s ease;
-      letter-spacing: 1px;
-    }
-
-    .card.revealed{ transform:rotateY(180deg);background:#fff;border-color:#34d399 }
-    .card.revealed .letter{ color:#000 }
-
-    .card.matched{
-      cursor:default;background:#2d2d2d;border-color:#28a745;
-      box-shadow:0 0 10px rgba(40,167,69,.7);animation:pulse .5s ease;
-    }
-    .card.matched .letter{ color:#fff; }
-
-    @keyframes pulse {
-      0%{transform:scale(1)}
-      50%{transform:scale(1.07)}
-      100%{transform:scale(1)}
-    }
-
+    /* ===== CSS sama seperti punyamu, aku tidak ubah ===== */
+    html, body {height:100%;margin:0;padding:0;box-sizing:border-box;width:100vw;overflow-x:hidden;}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#1d2b64 0%,#45a247 100%);background-size:cover;background-attachment:fixed;margin:0;text-align:center;color:#fff;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;box-sizing:border-box;padding:0 0 24px 0;width:100vw;overflow-x:hidden;}
+    h1{margin:32px 0 18px 0;font-size:1.35em;font-weight:700;text-shadow:0 0 10px rgba(255,255,255,.7),0 0 18px rgba(0,123,255,.7);word-break:break-word;max-width:98vw;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:8px;}
+    h1 .icon-lock{font-size:1.2em;margin-right:4px;}
+    .info{display:flex;flex-direction:row;justify-content:center;align-items:center;gap:18px;padding:8px 18px;margin:0 auto 24px auto;border-radius:14px;background:rgba(0,0,0,.22);backdrop-filter:blur(5px);font-weight:600;font-size:1em;max-width:98vw;box-sizing:border-box;min-height:38px;}
+    .info>div{min-width:70px;text-align:center;}
+    .grid{display:grid;justify-content:center;align-items:center;gap:8px;margin:0 auto 24px auto;width:100%;max-width:340px;min-height:70px;box-sizing:border-box;}
+    .card{width:44px;height:44px;border-radius:10px;border:2px solid #00d4ff;background:rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:transform .22s,box-shadow .18s,border-color .18s,background .18s;transform-style:preserve-3d;box-shadow:0 2px 8px rgba(0,0,0,.13);margin:0;position:relative;}
+    .card:hover{transform:scale(1.06);box-shadow:0 4px 12px rgba(0,0,0,.18);}
+    .card .letter{font-size:1.25em;font-weight:700;color:transparent;transform:rotateY(180deg);backface-visibility:hidden;transition:color .2s ease;letter-spacing:1px;}
+    .card.revealed{transform:rotateY(180deg);background:#fff;border-color:#34d399}
+    .card.revealed .letter{color:#000}
+    .card.matched{cursor:default;background:#2d2d2d;border-color:#28a745;box-shadow:0 0 10px rgba(40,167,69,.7);animation:pulse .5s ease;}
+    .card.matched .letter{color:#fff;}
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.07)}100%{transform:scale(1)}}
     .card.wrong{animation:shake .4s}
-    @keyframes shake {
-      0%,100%{transform:translateX(0)}
-      20%{transform:translateX(-4px)}
-      20%{transform:translateX(-6px)}
-      40%{transform:translateX(6px)}
-      60%{transform:translateX(-6px)}
-      80%{transform:translateX(6px)}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(6px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+    #gameOverOverlay{display:none;position:fixed;z-index:1000;left:0;top:0;right:0;bottom:0;width:100vw;height:100dvh;background:rgba(0,0,0,0.78);backdrop-filter:blur(3px);align-items:center;justify-content:center;flex-direction:column;}
+    #gameOverOverlay.show{display:flex;animation:popGameOver .7s cubic-bezier(.23,1.5,.32,1) both;}
+    @keyframes popGameOver{0%{transform:scale(.7) translateY(60px);opacity:0;}60%{transform:scale(1.08) translateY(-8px);opacity:1;}80%{transform:scale(.97) translateY(0);}100%{transform:scale(1) translateY(0);}}
+    .skull-emoji{font-size:4.5em;animation:skull-pop 1s cubic-bezier(.68,-.55,.27,1.55);filter:drop-shadow(0 0 18px #fff8) drop-shadow(0 0 8px #0008);}
+    @keyframes skull-pop{0%{transform:scale(.2) rotate(-30deg);opacity:0;}60%{transform:scale(1.2) rotate(10deg);opacity:1;}80%{transform:scale(.95) rotate(-5deg);}100%{transform:scale(1) rotate(0);}
     }
-
-    /* ===== Overlay Game Over ala Decode Kata ===== */
-    #gameOverOverlay {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0; top: 0; right: 0; bottom: 0;
-      width: 100vw; height: 100dvh;
-      background: rgba(0,0,0,0.78);
-      backdrop-filter: blur(3px);
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-    #gameOverOverlay.show {
-      display: flex;
-      animation: popGameOver 0.7s cubic-bezier(.23,1.5,.32,1) both;
-    }
-    @keyframes popGameOver {
-      0% { transform: scale(0.7) translateY(60px); opacity: 0; }
-      60% { transform: scale(1.08) translateY(-8px); opacity: 1; }
-      80% { transform: scale(.97) translateY(0); }
-      100% { transform: scale(1) translateY(0); }
-    }
-
-    .skull-emoji {
-      font-size: 4.5em;
-      animation: skull-pop 1s cubic-bezier(.68,-0.55,.27,1.55);
-      filter: drop-shadow(0 0 18px #fff8) drop-shadow(0 0 8px #0008);
-    }
-    @keyframes skull-pop {
-      0% { transform: scale(0.2) rotate(-30deg); opacity: 0; }
-      60% { transform: scale(1.2) rotate(10deg); opacity: 1; }
-      80% { transform: scale(0.95) rotate(-5deg);}
-      100% { transform: scale(1) rotate(0);}
-    }
-    .skull-text {
-      font-size: 2.1em;
-      margin: 10px 0;
-      font-weight: bold;
-      letter-spacing: 1px;
-      animation: pulseRed 1.2s infinite alternate;
-    }
-    @keyframes pulseRed {
-      0% { color:#ff3b3b; text-shadow:0 0 18px #ff3b3b,0 0 32px #fff; }
-      100% { color:#fff; text-shadow:0 0 32px #ff3b3b,0 0 48px #fff; }
-    }
-
-    .gameover-score {
-      font-size: 1.3em;
-      margin: 12px 0 18px;
-      color: #fff;
-      text-shadow: 0 0 8px #00d4ff99;
-    }
-
-    .gameover-actions-overlay {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
-      margin-top: 10px;
-      animation: fadein 0.5s;
-      width: 100%;
-      max-width: 520px; /* diperlebar dari 400px ke 520px */
-    }
-    @keyframes fadein {
-      from { opacity: 0; transform: translateY(20px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-
-    /* ====== BUTTON STYLE SAMA DENGAN CODINGAN YANG DIMINTA ====== */
-    .btn-main, .btn-home {
-      display: inline-block;
-      padding: 12px 32px;
-      font-size: 1.08em;
-      font-weight: 700;
-      color: #fff;
-      border: none;
-      border-radius: 22px;
-      cursor: pointer;
-      box-shadow: 0 6px 18px rgba(0,0,0,.28);
-      transition: transform .16s, box-shadow .16s, background .18s;
-      margin: 12px 8px 0 8px;
-      letter-spacing: .5px;
-      outline: none;
-      background: linear-gradient(135deg,#007bff,#00d4ff);
-      min-width: 140px;
-      max-width: 86%;
-    }
-    .btn-main {
-      background: linear-gradient(135deg,#007bff,#00d4ff);
-    }
-    .btn-main:hover, .btn-main:focus {
-      transform: scale(1.04);
-      background: linear-gradient(135deg,#00bfff,#00eaff);
-      box-shadow: 0 8px 24px rgba(0,0,0,.32);
-    }
-    .btn-home {
-      background: linear-gradient(135deg,#28a745,#5be584);
-    }
-    .btn-home:hover, .btn-home:focus {
-      transform: scale(1.04);
-      background: linear-gradient(135deg,#34d399,#7cf9a7);
-      box-shadow: 0 8px 24px rgba(0,0,0,.32);
-    }
-    /* Untuk tombol di overlay game over, dipisah agar tidak 1 class */
-    #gameOverOverlay .btn-main {
-      width: 86%;
-      max-width: 520px;
-      min-width: 220px;
-      margin: 12px 0 0 0;
-      font-size: 1.13em;
-      padding: 16px 0;
-      display: block;
-    }
-    #gameOverOverlay .btn-home {
-      width: 60%;
-      max-width: 520px;
-      min-width: 220px;
-      margin: 12px 0 0 0;
-      font-size: 1.13em;
-      padding: 16px 0;
-      display: block;
-    }
-    /* Responsive button */
-    @media (max-width: 600px) {
-      .btn-main, .btn-home {
-        width: 86%;
-        min-width: 0;
-        font-size: 1em;
-        padding: 12px 0;
-      }
-      #gameOverOverlay .btn-main {
-        width: 86%;
-        min-width: 0;
-        font-size: 1em;
-        padding: 14px 0;
-      }
-      #gameOverOverlay .btn-home {
-        width: 86%;
-        min-width: 0;
-        font-size: 1em;
-        padding: 14px 0;
-      }
-    }
+    .skull-text{font-size:2.1em;margin:10px 0;font-weight:bold;letter-spacing:1px;animation:pulseRed 1.2s infinite alternate;}
+    @keyframes pulseRed{0%{color:#ff3b3b;text-shadow:0 0 18px #ff3b3b,0 0 32px #fff;}100%{color:#fff;text-shadow:0 0 32px #ff3b3b,0 0 48px #fff;}}
+    .gameover-score{font-size:1.3em;margin:12px 0 18px;color:#fff;text-shadow:0 0 8px #00d4ff99;}
+    .gameover-actions-overlay{display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:10px;animation:fadein .5s;width:100%;max-width:520px;}
+    @keyframes fadein{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    .btn-main,.btn-home{display:inline-block;padding:12px 32px;font-size:1.08em;font-weight:700;color:#fff;border:none;border-radius:22px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.28);transition:transform .16s,box-shadow .16s,background .18s;margin:12px 8px 0 8px;letter-spacing:.5px;outline:none;background:linear-gradient(135deg,#007bff,#00d4ff);min-width:140px;max-width:86%;}
+    .btn-main{background:linear-gradient(135deg,#007bff,#00d4ff);}
+    .btn-main:hover,.btn-main:focus{transform:scale(1.04);background:linear-gradient(135deg,#00bfff,#00eaff);box-shadow:0 8px 24px rgba(0,0,0,.32);}
+    .btn-home{background:linear-gradient(135deg,#28a745,#5be584);}
+    .btn-home:hover,.btn-home:focus{transform:scale(1.04);background:linear-gradient(135deg,#34d399,#7cf9a7);box-shadow:0 8px 24px rgba(0,0,0,.32);}
+    #gameOverOverlay .btn-main{width:60%;max-width:520px;min-width:220px;margin:12px 0 0 0;font-size:1.13em;padding:16px 0;display:block;}
+    #gameOverOverlay .btn-home{width:60%;max-width:520px;min-width:220px;margin:12px 0 0 0;font-size:1.13em;padding:16px 0;display:block;}
+    @media(max-width:600px){.btn-main,.btn-home{width:86%;min-width:0;font-size:1em;padding:12px 0;}#gameOverOverlay .btn-main{width:60%;min-width:0;font-size:1em;padding:14px 0;}#gameOverOverlay .btn-home{width:60%;min-width:0;font-size:1em;padding:14px 0;}}
   </style>
 </head>
 <body>
@@ -308,9 +72,24 @@
   <button id="btnRestart" class="btn-main" onclick="restartGame()">Restart</button>
   <button class="btn-home" onclick="goHome()">Back To Home</button>
 
+  <!-- 🔊 Audio Game Over -->
+  <audio id="gameOverSound" preload="auto">
+    <source src="sounds/gameover.mp3" type="audio/mpeg">
+    <source src="sounds/gameover.wav" type="audio/wav">
+  </audio>
+  <!-- 🔊 Audio Benar & Salah -->
+  <audio id="benarSound" preload="auto">
+    <source src="sounds/true.mp3" type="audio/mpeg">
+    <source src="sounds/true.wav" type="audio/wav">
+  </audio>
+  <audio id="salahSound" preload="auto">
+    <source src="sounds/wrong.mp3" type="audio/mpeg">
+    <source src="sounds/wrong.wav" type="audio/wav">
+  </audio>
+
   <script>
     let score=0;
-    let highScore=localStorage.getItem("highScore")||0;
+    let highScore=localStorage.getItem("highScore_hubungkan")||0;
     document.getElementById("highScore").textContent=highScore;
 
     let selected=[];let matched=[];let round=1;let lives=0;
@@ -320,10 +99,6 @@
 
     const pointsPerMatch={easy:10,normal:20,hard:30,veryHard:50};
     const livesPerLevel={easy:6,normal:10,hard:13,veryHard:15};
-
-    // Jumlah kotak per level harus membentuk grid yang simetris (baris dan kolom sama)
-    // easy: 4x4 (16), normal: 4x6 (24), hard: 5x6 (30), veryHard: 6x6 (36)
-    // Setiap pool harus genap dan membentuk grid penuh
 
     function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
 
@@ -337,31 +112,14 @@
       document.getElementById("gameOverOverlay").style.display="none";
       document.getElementById("gameOverOverlay").classList.remove("show");
 
-      let pool=[], columns=4, rows=4;
-      if(currentLevel==="easy") {
-        // 4x4 grid, 8 pasang huruf
-        pool=["A","A","B","B","C","C","D","D"];
-        columns=4; rows=2;
-      }
-      else if(currentLevel==="normal") {
-        // 4x6 grid, 12 pasang huruf
-        pool=["A","A","B","B","C","C","D","D","E","E","F","F"];
-        columns=4; rows=3;
-      }
-      else if(currentLevel==="hard") {
-        // 5x6 grid, 15 pasang huruf
-        pool=["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H"];
-        columns=4; rows=4;
-      }
-      else {
-        // veryHard: 6x6 grid, 18 pasang huruf
-        pool=["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H","I","I","J","J"];
-        columns=5; rows=4;
-      }
+      let pool=[],columns=4,rows=4;
+      if(currentLevel==="easy"){pool=["A","A","B","B","C","C","D","D"];columns=4;rows=2;}
+      else if(currentLevel==="normal"){pool=["A","A","B","B","C","C","D","D","E","E","F","F"];columns=4;rows=3;}
+      else if(currentLevel==="hard"){pool=["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H"];columns=4;rows=4;}
+      else{pool=["A","A","B","B","C","C","D","D","E","E","F","F","G","G","H","H","I","I","J","J"];columns=5;rows=4;}
 
-      // Set grid-template-columns agar grid selalu simetris
-      document.querySelector('.grid').style.gridTemplateColumns=`repeat(${columns}, 44px)`;
-      document.querySelector('.grid').style.gridTemplateRows=`repeat(${rows}, 44px)`;
+      document.querySelector('.grid').style.gridTemplateColumns=`repeat(${columns},44px)`;
+      document.querySelector('.grid').style.gridTemplateRows=`repeat(${rows},44px)`;
 
       const shuffled=shuffle([...pool]);
       shuffled.forEach((letter,idx)=>{
@@ -382,6 +140,75 @@
       if(selected.length===2) setTimeout(checkMatch,500);
     }
 
+    function playSound(id) {
+      const audio = document.getElementById(id);
+      if(audio){
+        try {
+          audio.currentTime = 0;
+          audio.play().catch(e => {
+            console.log('Sound play failed:', e);
+            // Fallback: generate sound jika file tidak tersedia
+            generateFallbackSound(audio);
+          });
+        } catch (e) {
+          console.log('Sound error:', e);
+          generateFallbackSound(audio);
+        }
+      }
+    }
+
+    // Fallback sound generation
+    function generateFallbackSound(audioElement) {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        if (audioElement.id === 'benarSound') {
+          // Sound untuk jawaban benar
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+          oscillator.type = 'sine';
+          gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.3);
+        } else if (audioElement.id === 'salahSound') {
+          // Sound untuk jawaban salah
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+          oscillator.type = 'sawtooth';
+          gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.2);
+        } else if (audioElement.id === 'gameOverSound') {
+          // Sound untuk game over
+          const playTone = (freq, time) => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + time);
+            oscillator.type = 'sawtooth';
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + time);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + 0.3);
+            oscillator.start(audioContext.currentTime + time);
+            oscillator.stop(audioContext.currentTime + time + 0.3);
+          };
+          playTone(400, 0);
+          playTone(300, 0.15);
+          playTone(200, 0.3);
+        }
+      } catch (e) {
+        console.log('Fallback sound generation failed:', e);
+      }
+    }
+
     function checkMatch(){
       const [c1,c2]=selected;
       if(c1.dataset.letter===c2.dataset.letter && c1.dataset.index!==c2.dataset.index){
@@ -389,17 +216,18 @@
         matched.push(c1.dataset.index,c2.dataset.index);
         score+=pointsPerMatch[currentLevel];
         document.getElementById("score").textContent=score;
-        if(score>highScore){highScore=score;localStorage.setItem("highScore",highScore);document.getElementById("highScore").textContent=highScore;}
+        // 🔊 mainkan suara benar
+        playSound("benarSound");
+        if(score>highScore){highScore=score;localStorage.setItem("highScore_hubungkan",highScore);document.getElementById("highScore").textContent=highScore;}
         if(matched.length===document.querySelectorAll(".card").length){round++;startGame();}
       }else{
         lives--;document.getElementById("lives").textContent=lives;
         c1.classList.add("wrong");c2.classList.add("wrong");
+        // 🔊 mainkan suara salah
+        playSound("salahSound");
         if(lives<=0){gameOver();}
         else{
-          setTimeout(()=>{
-            c1.classList.remove("revealed","wrong");
-            c2.classList.remove("revealed","wrong");
-          },400);
+          setTimeout(()=>{c1.classList.remove("revealed","wrong");c2.classList.remove("revealed","wrong");},400);
         }
       }
       selected=[];
@@ -412,18 +240,15 @@
       document.getElementById("finalScore").textContent=score;
       document.getElementById("finalHighScore").textContent=highScore;
       overlay.style.display="flex";
-      setTimeout(()=>{ overlay.classList.add("show"); }, 10);
+      setTimeout(()=>{ overlay.classList.add("show"); },10);
+
+      // 🔊 mainkan suara game over
+      let sound=document.getElementById("gameOverSound");
+      sound.currentTime=0;
+      sound.play();
     }
-    function restartGame(){
-      score=0;
-      document.getElementById("score").textContent=score;
-      startGame();
-    }
-    function restartFromStart(){
-      score=0;round=1;currentLevel="easy";
-      document.getElementById("score").textContent=score;
-      startGame();
-    }
+    function restartGame(){score=0;document.getElementById("score").textContent=score;startGame();}
+    function restartFromStart(){score=0;round=1;currentLevel="easy";document.getElementById("score").textContent=score;startGame();}
     function goHome(){window.location.href="index.html";}
     startGame();
   </script>

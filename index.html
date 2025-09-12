@@ -124,8 +124,8 @@
 <body>
   <div class="container">
     <h1>🎮 Game Logika</h1>
-    <p class="highscore">
-      <span>🏆 High Score: <span id="highScore">0</span></span>
+    <p class="highscore" id="highscoreDisplay">
+      <span>🏆 Belum ada high score</span>
     </p>
 
     <!-- Daftar game (ditampilkan langsung) -->
@@ -149,9 +149,65 @@
   <script>
     let selectedGame = null;
 
-    // Ambil high score dari localStorage
-    let highScore = localStorage.getItem("highScore") || 0;
-    document.getElementById("highScore").textContent = highScore;
+    // Ambil high score dari localStorage untuk ketiga game
+    let highScoreHubungkan = parseInt(localStorage.getItem("highScore_hubungkan") || "0", 10);
+    let highScoreDecode = parseInt(localStorage.getItem("highScore_decode") || "0", 10);
+    let highScoreLabirin = parseInt(localStorage.getItem("highScore_labirin") || "0", 10);
+
+    // Tentukan skor tertinggi dan dari game mana
+    let skorTertinggi = highScoreHubungkan;
+    let namaGame = "Samakan Huruf";
+    let keyGame = "hubungkan";
+
+    if (highScoreDecode > skorTertinggi) {
+      skorTertinggi = highScoreDecode;
+      namaGame = "Tebak Kata";
+      keyGame = "decode";
+    }
+    if (highScoreLabirin > skorTertinggi) {
+      skorTertinggi = highScoreLabirin;
+      namaGame = "Labirin";
+      keyGame = "labirin";
+    }
+
+    // Fungsi untuk memperbarui tampilan high score
+    function updateHighScoreDisplay() {
+      // Ambil ulang high score dari localStorage
+      let highScoreHubungkan = parseInt(localStorage.getItem("highScore_hubungkan") || "0", 10);
+      let highScoreDecode = parseInt(localStorage.getItem("highScore_decode") || "0", 10);
+      let highScoreLabirin = parseInt(localStorage.getItem("highScore_labirin") || "0", 10);
+
+      // Tentukan skor tertinggi dan dari game mana
+      let skorTertinggi = highScoreHubungkan;
+      let namaGame = "Samakan Huruf";
+      let keyGame = "hubungkan";
+
+      if (highScoreDecode > skorTertinggi) {
+        skorTertinggi = highScoreDecode;
+        namaGame = "Tebak Kata";
+        keyGame = "decode";
+      }
+      if (highScoreLabirin > skorTertinggi) {
+        skorTertinggi = highScoreLabirin;
+        namaGame = "Labirin";
+        keyGame = "labirin";
+      }
+
+      // Tampilkan high score dengan format baru
+      let highscoreDisplay = document.getElementById("highscoreDisplay");
+      if (skorTertinggi > 0) {
+        highscoreDisplay.innerHTML = `<span>🏆 High score anda ${skorTertinggi} dari game <b>${namaGame}</b></span>`;
+      } else {
+        highscoreDisplay.innerHTML = `<span>🏆 Belum ada high score</span>`;
+      }
+    }
+
+    // Panggil fungsi update saat halaman dimuat
+    updateHighScoreDisplay();
+
+    // Update high score ketika halaman mendapat fokus kembali
+    window.addEventListener('focus', updateHighScoreDisplay);
+    window.addEventListener('pageshow', updateHighScoreDisplay);
 
     function chooseGame(game, btn) {
       selectedGame = game;
